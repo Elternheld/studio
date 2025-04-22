@@ -140,6 +140,7 @@ const VoiceToTextBrainstorming = () => {
                     />
                 </div>
                 <Button onClick={handleSaveConfig}>Save Configuration</Button>
+                <Button onClick={handleBrainstorm}>Vorschläge generieren</Button>
             </div>
         </CardContent>
       </Card>
