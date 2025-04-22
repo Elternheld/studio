@@ -5,7 +5,7 @@ import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
 import {Toaster} from "@/components/ui/toaster"
 import {Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarInset} from "@/components/ui/sidebar";
-import {Home, Users, Activity, Settings, User} from "lucide-react";
+import {Home, Users, Activity, Settings, User, KeyRound} from "lucide-react";
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -104,6 +104,7 @@ export default function RootLayout({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   {userRole === 'admin' && (
+                    <>
                       <SidebarMenuItem>
                         <SidebarMenuButton asChild>
                           <Link href="/tools" className="flex items-center">
@@ -112,6 +113,15 @@ export default function RootLayout({
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <Link href="/api-manager" className="flex items-center">
+                            <KeyRound className="mr-2 h-4 w-4" />
+                            <span>API Manager</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </>
                   )}
                   {userRole === 'service' && (
                       <SidebarMenuItem>
@@ -167,5 +177,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    
