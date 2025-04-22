@@ -35,7 +35,7 @@ const ProfilePage = () => {
     <div className="container py-12">
       <Card className="w-[80%] mx-auto">
         <CardHeader>
-          <CardTitle>Profile Einrichten</CardTitle>
+          <CardTitle>Profil Einrichten</CardTitle>
           <CardDescription>Richte dein Profil ein.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
