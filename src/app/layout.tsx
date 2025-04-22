@@ -4,7 +4,7 @@ import type {Metadata} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
 import {Toaster} from "@/components/ui/toaster"
-import {Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarInset} from "@/components/ui/sidebar";
+import {Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarProvider, SidebarTrigger, SidebarInset, SidebarMenuItem} from "@/components/ui/sidebar";
 import {Home, Users, Settings, User, KeyRound, FileText, Activity} from "lucide-react";
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -33,19 +33,32 @@ const SidebarHeader = ({children}: {children: React.ReactNode}) => {
   )
 }
 
-// Placeholder for authentication (replace with actual logic)
-const getUserRoleFromLocalStorage = () => {
-  if (typeof window === 'undefined') {
-    return 'customer';
-  }
-  return localStorage.getItem('userRole') || 'customer';
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [userRole, setUserRole] = useState<string>('customer');
+
+  useEffect(() => {
+    // Load user role from localStorage on component mount
+    const storedRole = localStorage.getItem('userRole');
+    if (storedRole) {
+      setUserRole(storedRole);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save user role to localStorage whenever it changes
+    localStorage.setItem('userRole', userRole);
+  }, [userRole]);
+
+
+  const handleRoleChange = (newRole: string) => {
+    setUserRole(newRole);
+  };
+
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
@@ -67,54 +80,103 @@ export default function RootLayout({
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <Link href="/community" className="flex items-center">
-                            <Users className="mr-2 h-4 w-4" />
-                            <span>Community</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <Link href="/activities" className="flex items-center">
-                            <Activity className="mr-2 h-4 w-4" />
-                            <span>Aktivitätenfortschritt</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <Link href="/use-case-1" className="flex items-center">
-                            <Activity className="mr-2 h-4 w-4" />
-                            <span>Use Case 1 - Ideenfinder Aktivitäten</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <Link href="/struktur-vorschlage-aktivitaten" className="flex items-center">
-                            <Activity className="mr-2 h-4 w-4" />
-                            <span>Struktur Vorschläge Aktivitäten</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <Link href="/profile" className="flex items-center">
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Profil</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
+                      {userRole === 'customer' && (
+                          <>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/community" className="flex items-center">
+                                          <Users className="mr-2 h-4 w-4"/>
+                                          <span>Community</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/activities" className="flex items-center">
+                                          <Activity className="mr-2 h-4 w-4"/>
+                                          <span>Aktivitätenfortschritt</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/use-case-1" className="flex items-center">
+                                          <Activity className="mr-2 h-4 w-4"/>
+                                          <span>Use Case 1 - Ideenfinder Aktivitäten</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/struktur-vorschlage-aktivitaten" className="flex items-center">
+                                          <Activity className="mr-2 h-4 w-4"/>
+                                          <span>Struktur Vorschläge Aktivitäten</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/profile" className="flex items-center">
+                                          <User className="mr-2 h-4 w-4"/>
+                                          <span>Profil</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                          </>
+                      )}
+                      {userRole === 'admin' && (
+                          <>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/api-manager" className="flex items-center">
+                                          <KeyRound className="mr-2 h-4 w-4"/>
+                                          <span>API Manager</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/content" className="flex items-center">
+                                          <FileText className="mr-2 h-4 w-4"/>
+                                          <span>Content</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/frontend-assets" className="flex items-center">
+                                          <Settings className="mr-2 h-4 w-4"/>
+                                          <span>Ablage für Frontend</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/tools" className="flex items-center">
+                                          <Settings className="mr-2 h-4 w-4"/>
+                                          <span>Admin Tools</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                          </>
+                      )}
+
+                      {userRole === 'service' && (
+                          <>
+                              <SidebarMenuItem>
+                                  <SidebarMenuButton asChild>
+                                      <Link href="/service" className="flex items-center">
+                                          <Settings className="mr-2 h-4 w-4"/>
+                                          <span>Service Tools</span>
+                                      </Link>
+                                  </SidebarMenuButton>
+                              </SidebarMenuItem>
+                          </>
+                      )}
                     </SidebarMenu>
                   </SidebarGroup>
 
-                  <ApiKeySection/>
 
-                  <AdminSection/>
-
-                  <ServiceSection/>
                 </SidebarContent>
                 <SidebarFooter>
                   <p className="text-center text-xs">
@@ -124,7 +186,7 @@ export default function RootLayout({
               </Sidebar>
               <SidebarInset>
                 <div className="absolute top-2 right-2">
-                  <AccountDropdown />
+                  <AccountDropdown  userRole={userRole} handleRoleChange={handleRoleChange}/>
                 </div>
                 {children}
                 <Toaster />
@@ -138,18 +200,9 @@ export default function RootLayout({
 
 
 //Created as a component, so it can become interactive
-const AccountDropdown = () => {
+const AccountDropdown = ({userRole, handleRoleChange} : {userRole: string, handleRoleChange: (role:string) => void}) => {
     'use client';
 
-  const [userRole, setUserRole] = React.useState<string>('customer');
-
-  React.useEffect(() => {
-    localStorage.setItem('userRole', userRole);
-  }, [userRole]);
-
-  const handleRoleChange = (newRole: string) => {
-    setUserRole(newRole);
-  };
   return (
       <DropdownMenu>
         <DropdownMenuTrigger>
@@ -277,3 +330,4 @@ const ServiceSection = () => {
   }
   return null;
 };
+
