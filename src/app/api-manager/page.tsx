@@ -9,6 +9,8 @@ import { Eye, EyeOff, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
 import { useApiKeyContext } from "@/components/ApiKeyContext";
 import {Textarea} from "@/components/ui/textarea";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {pingApiKey} from "@/services/api-key-service";
 
 export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
@@ -19,6 +21,11 @@ export default function ApiManagerPage() {
   const { toast: useToastHook } = useToast()
     const { apiKeys, addApiKey, deleteApiKey } = useApiKeyContext();
     const [visibleKeys, setVisibleKeys] = React.useState<{ [key: string]: boolean }>({});
+    const [selectedApiKey, setSelectedApiKey] = React.useState<string | undefined>(undefined);
+    const [pingResult, setPingResult] = React.useState<{ time: number | null, active: boolean | null }>({
+        time: null,
+        active: null
+    });
 
 
   const toggleShowApiKey = () => {
@@ -94,6 +101,27 @@ export default function ApiManagerPage() {
             ...prevState,
             [id]: !prevState[id],
         }));
+    };
+
+    const handlePingApiKey = async () => {
+        if (!selectedApiKey) {
+            useToastHook({
+                title: "Error",
+                description: "No API Key selected.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        const startTime = performance.now();
+        const isActive = await pingApiKey(selectedApiKey);
+        const endTime = performance.now();
+        const timeTaken = endTime - startTime;
+
+        setPingResult({
+            time: timeTaken,
+            active: isActive,
+        });
     };
 
 
@@ -202,8 +230,40 @@ export default function ApiManagerPage() {
                 </CardContent>
             </Card>
         )}
+
+        <Card className="w-[80%] mx-auto mt-8">
+            <CardHeader>
+                <CardTitle>API Test</CardTitle>
+                <CardDescription>Test the connectivity of your API keys.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div>
+                    <Label htmlFor="apiKey">Select API Key</Label>
+                    <Select onValueChange={setSelectedApiKey}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select an API Key" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {apiKeys.map((key) => (
+                                <SelectItem key={key.id} value={key.key}>
+                                    {key.organisation} - {key.model}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <Button onClick={handlePingApiKey}>Ping API</Button>
+                {pingResult.time !== null && (
+                    <div>
+                        <p>Ping Time: {pingResult.time.toFixed(2)} ms</p>
+                        <p>Status: {pingResult.active ? "Active" : "Inactive"}</p>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
     </div>
   );
 }
+
 
 
