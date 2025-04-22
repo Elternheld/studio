@@ -1,4 +1,3 @@
-// src/ai/flows/generate-activity-idea.ts
 'use server';
 /**
  * @fileOverview Generates activity ideas based on child's age, location, weather, and available time.
@@ -29,7 +28,7 @@ const GenerateActivityIdeaOutputSchema = z.object({
   costEstimate: z.number().describe('The estimated cost of the activity in USD.'),
   safetyTips: z.string().describe('Important safety tips for the activity.'),
   educationalBenefits: z.array(z.string()).describe('The educational benefits of the activity.'),
-  imageUrl: z.string().describe('A URL of an image representing the activity. Use https://picsum.photos/200/300 for placeholder'),
+  imageUrl: z.string().describe('A URL of an image representing the activity.'),
 });
 export type GenerateActivityIdeaOutput = z.infer<typeof GenerateActivityIdeaOutputSchema>;
 
@@ -51,25 +50,43 @@ const generateActivityPrompt = ai.definePrompt({
   output: {
     schema: GenerateActivityIdeaOutputSchema,
   },
-  prompt: `You are a creative activity planner for children.
+  prompt: `Du bist ein kreativer Aktivitätsplaner für Kinder.
 
-  Generate an engaging activity idea based on the following criteria:
-  - Age Group: {{ageGroup}}
-  - Location: {{indoorOutdoor}}
-  - Weather: {{weather}}
-  - Available Time: {{timeAvailable}} minutes
-  - Additional Notes: {{ersteGedanken}}
+  Generiere eine ansprechende Aktivitätsidee basierend auf den folgenden Kriterien:
+  - Altersgruppe: {{ageGroup}}
+  - Ort: {{indoorOutdoor}}
+  - Wetter: {{weather}}
+  - Verfügbare Zeit: {{timeAvailable}} Minuten
+  - Zusätzliche Hinweise: {{ersteGedanken}}
 
-  The response should contain:
-  - A title for the activity.
-  - A brief description of the activity.
-  - Step-by-step instructions for the activity.
-  - A list of materials needed for the activity.
-  - An estimated cost of the activity in USD.
-  - Important safety tips for the activity.
-  - A list of educational benefits of the activity.
-  - A URL of an image representing the activity. Use https://picsum.photos/200/300 for placeholder
+  Die Antwort sollte Folgendes enthalten:
+  - Einen Titel für die Aktivität.
+  - Eine kurze Beschreibung der Aktivität.
+  - Schritt-für-Schritt-Anleitungen für die Aktivität.
+  - Eine Liste der für die Aktivität benötigten Materialien.
+  - Eine geschätzte Kosten der Aktivität in USD.
+  - Wichtige Sicherheitshinweise für die Aktivität.
+  - Eine Liste der pädagogischen Vorteile der Aktivität.
 `,
+});
+
+const generateImagePrompt = ai.definePrompt({
+  name: 'generateImagePrompt',
+  input: {
+    schema: z.object({
+      title: z.string().describe('The title of the activity.'),
+      description: z.string().describe('A brief description of the activity.'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      imageUrl: z.string().describe('A URL of an image representing the activity.'),
+    }),
+  },
+  prompt: `Erstelle eine Bild-URL, die das folgende Ereignis darstellt.
+  Name: {{title}}
+  Beschreibung: {{description}}
+`
 });
 
 const generateActivityIdeaFlow = ai.defineFlow<
@@ -83,6 +100,13 @@ const generateActivityIdeaFlow = ai.defineFlow<
   },
   async input => {
     const {output} = await generateActivityPrompt(input);
+    if(output){
+      const imagePromptOutput = await generateImagePrompt(output);
+      return {
+        ...output,
+        imageUrl: imagePromptOutput.imageUrl
+      };
+    }
     return output!;
   }
 );
