@@ -16,7 +16,7 @@ export default function ApiManagerPage() {
   const [organisation, setOrganisation] = React.useState('');
     const [description, setDescription] = React.useState('');
   const { toast: useToastHook } = useToast()
-    const { addApiKey } = useApiKeyContext();
+    const { apiKeys, addApiKey } = useApiKeyContext();
 
   const toggleShowApiKey = () => {
     setShowApiKey(!showApiKey);
@@ -125,6 +125,26 @@ export default function ApiManagerPage() {
             <Button onClick={handleSaveApiKey}>Save API Key</Button>
         </CardContent>
       </Card>
+
+        {apiKeys.length > 0 && (
+            <Card className="w-[80%] mx-auto mt-8">
+                <CardHeader>
+                    <CardTitle>API Keys</CardTitle>
+                    <CardDescription>List of saved API keys.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4">
+                        {apiKeys.map((key) => (
+                            <div key={key.id} className="border rounded-md p-4">
+                                <p><strong>Organisation:</strong> {key.organisation}</p>
+                                <p><strong>Project:</strong> {key.model}</p>
+                                <p><strong>API Key:</strong> {key.key}</p>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        )}
     </div>
   );
 }
