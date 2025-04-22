@@ -37,6 +37,7 @@ const VoiceToTextBrainstorming = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+        <h3 className="text-xl font-semibold">Sprach-Eingabe</h3>
           <div className="flex items-center space-x-4">
             <Button variant="outline" onClick={toggleRecording}>
               {isRecording ? 'Aufnahme stoppen' : 'Aufnahme starten'}
@@ -60,6 +61,8 @@ const VoiceToTextBrainstorming = () => {
               </ul>
             </div>
           )}
+          <h3 className="text-xl font-semibold mt-4">Konfigurator</h3>
+          <p>In Kürze verfügbar...</p>
         </CardContent>
       </Card>
     </div>
@@ -67,4 +70,3 @@ const VoiceToTextBrainstorming = () => {
 };
 
 export default VoiceToTextBrainstorming;
-
