@@ -8,11 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
 import { useApiKeyContext } from "@/components/ApiKeyContext";
+import {Textarea} from "@/components/ui/textarea";
 
 export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [organisation, setOrganisation] = React.useState('');
+    const [description, setDescription] = React.useState('');
   const { toast: useToastHook } = useToast()
     const { addApiKey } = useApiKeyContext();
 
@@ -26,6 +28,10 @@ export default function ApiManagerPage() {
 
     const handleChangeOrganisation = (event: React.ChangeEvent<HTMLInputElement>) => {
         setOrganisation(event.target.value);
+    };
+
+    const handleChangeDescription = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setDescription(event.target.value);
     };
 
 
@@ -49,6 +55,7 @@ export default function ApiManagerPage() {
             userId: 'current-user', // Replace with actual user ID
             isActive: true,
             organisation: organisation,
+            description: description,
         };
 
         // Update the state with the new API key
@@ -57,6 +64,7 @@ export default function ApiManagerPage() {
         // Clear the input fields
         setApiKey('');
         setOrganisation('');
+            setDescription('');
 
         // Show a success message
         useToastHook({
@@ -83,8 +91,16 @@ export default function ApiManagerPage() {
                 value={organisation}
                 onChange={handleChangeOrganisation}
                 />
-            <CardDescription>Enter issuer organisation of API key</CardDescription>
           </div>
+            <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                    id="description"
+                    placeholder="Enter a description for the API key"
+                    value={description}
+                    onChange={handleChangeDescription}
+                />
+            </div>
           <div>
             <Label htmlFor="apiKey">API Key</Label>
             <div className="relative">
@@ -112,3 +128,4 @@ export default function ApiManagerPage() {
     </div>
   );
 }
+
