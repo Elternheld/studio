@@ -102,6 +102,7 @@ const VoiceToTextBrainstorming = () => {
             llmModell,
         });
         // Here you would typically make an API call to save the configuration to a database
+        handleGenerateSuggestions()
     };
 
     const handleGenerateSuggestions = async () => {
@@ -247,7 +248,7 @@ const VoiceToTextBrainstorming = () => {
                 </div>
                 <Button onClick={handleSaveConfig}>Konfiguration speichern</Button>
             </div>
-             <Button onClick={handleGenerateSuggestions}>Vorschläge generieren</Button>
+            
 
           {activities.length > 0 && (
               <div>
