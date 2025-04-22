@@ -1,6 +1,8 @@
 "use client";
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { getApiKeys, addApiKey as addApiKeyToDb, updateApiKey as updateApiKeyInDb, deleteApiKey as deleteApiKeyFromDb } from "@/services/api-key-service";
+
 
 // Define the type for the API key
 interface ApiKey {
@@ -36,16 +38,24 @@ interface ApiKeyProviderProps {
 }
 
 export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
-    const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-        { id: '1', provider: 'OpenAI', model: 'GPT-3', key: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', userId: 'user1', isActive: true, organisation: 'OpenAI', description: '' },
-        { id: '2', provider: 'Anthropic', model: 'Claude', key: 'key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', userId: 'user1', isActive: false, organisation: 'Anthropic', description: '' },
-    ]);
+    const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
 
-    const addApiKey = (apiKey: ApiKey) => {
+    useEffect(() => {
+        const loadApiKeys = async () => {
+            const keys = await getApiKeys();
+            setApiKeys(keys);
+        };
+
+        loadApiKeys();
+    }, []);
+
+    const addApiKey = async (apiKey: ApiKey) => {
+        await addApiKeyToDb(apiKey);
         setApiKeys(prevKeys => [...prevKeys, apiKey]);
     };
 
-    const updateApiKey = (id: string, apiKey: Partial<ApiKey>) => {
+    const updateApiKey = async (id: string, apiKey: Partial<ApiKey>) => {
+        await updateApiKeyInDb(id, apiKey);
         setApiKeys(prevKeys =>
             prevKeys.map(key =>
                 key.id === id ? { ...key, ...apiKey } : key
@@ -53,7 +63,8 @@ export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
         );
     };
 
-    const deleteApiKey = (id: string) => {
+    const deleteApiKey = async (id: string) => {
+        await deleteApiKeyFromDb(id);
         setApiKeys(prevKeys => prevKeys.filter(key => key.id !== id));
     };
 
