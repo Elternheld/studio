@@ -14,24 +14,73 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
+import { Label } from "@/components/ui/label";
+import { v4 as uuidv4 } from 'uuid';
+import { addActivity } from "@/services/activity-service";
+import {useToast} from "@/hooks/use-toast";
+
+interface Activity {
+    id: string;
+    title: string;
+    description: string;
+    instructions: string;
+    materials: string[];
+    costEstimate: number;
+    safetyTips: string;
+    benefits: string[];
+    imageUrl: string;
+    createdBy: string; // Reference to users (replace with actual user ID)
+    generatedBy: string; // Model name
+    createdAt: number; // Timestamp
+}
 
 const VoiceToTextBrainstorming = () => {
   const [voiceInput, setVoiceInput] = useState('');
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [ageGroup, setAgeGroup] = useState('');
   const [indoorOutdoor, setIndoorOutdoor] = useState('');
   const [weather, setWeather] = useState('');
   const [timeAvailable, setTimeAvailable] = useState('');
   const [llmModel, setLlmModel] = useState('');
+  const { toast } = useToast();
+
 
   const handleBrainstorm = async () => {
     try {
       const result = await brainstormActivityIdeas({ voiceInput } as BrainstormActivityIdeasInput);
-      setSuggestions(result.suggestions);
+        if (result.suggestions && Array.isArray(result.suggestions)) {
+            const newActivities = result.suggestions.map(suggestion => ({
+                id: uuidv4(),
+                title: 'Activity Idea', // default title
+                description: suggestion, // Use suggestion as description
+                instructions: '',
+                materials: [],
+                costEstimate: 0,
+                safetyTips: '',
+                benefits: [],
+                imageUrl: 'https://picsum.photos/200/300', // placeholder image
+                createdBy: 'user-id', // Replace with actual user ID
+                generatedBy: llmModel || 'DefaultModel',
+                createdAt: Date.now(),
+            }));
+            setActivities(newActivities);
+        } else {
+            console.error("Unexpected format for suggestions:", result.suggestions);
+            toast({
+                title: "Error",
+                description: "Failed to generate activities due to unexpected format.",
+                variant: "destructive",
+            });
+        }
+
     } catch (error) {
       console.error("Failed to brainstorm activities:", error);
+        toast({
+            title: "Error",
+            description: "Failed to brainstorm activities.",
+            variant: "destructive",
+        });
     }
   };
 
@@ -54,24 +103,60 @@ const VoiceToTextBrainstorming = () => {
     };
 
     const handleGenerateSuggestions = async () => {
-        // Use the configured parameters to generate suggestions
-        console.log("Generating suggestions with config:", {
-            ageGroup,
-            indoorOutdoor,
-            weather,
-            timeAvailable,
-            llmModel,
-        });
-
-        // Call the brainstorming function with the voice input and config params
         try {
             const result = await brainstormActivityIdeas({
                 voiceInput: `${voiceInput}.
                 Consider these parameters: Age Group: ${ageGroup}, Indoor/Outdoor: ${indoorOutdoor}, Weather: ${weather}, Time Available: ${timeAvailable}, LLM Model: ${llmModel}`
             } as BrainstormActivityIdeasInput);
-            setSuggestions(result.suggestions);
+
+            if (result.suggestions && Array.isArray(result.suggestions)) {
+                const newActivities = result.suggestions.map(suggestion => ({
+                    id: uuidv4(),
+                    title: 'Activity Idea', // default title
+                    description: suggestion, // Use suggestion as description
+                    instructions: '',
+                    materials: [],
+                    costEstimate: 0,
+                    safetyTips: '',
+                    benefits: [],
+                    imageUrl: 'https://picsum.photos/200/300', // placeholder image
+                    createdBy: 'user-id', // Replace with actual user ID
+                    generatedBy: llmModel || 'DefaultModel',
+                    createdAt: Date.now(),
+                }));
+                setActivities(newActivities);
+            } else {
+                console.error("Unexpected format for suggestions:", result.suggestions);
+                toast({
+                    title: "Error",
+                    description: "Failed to generate activities due to unexpected format.",
+                    variant: "destructive",
+                });
+            }
         } catch (error) {
             console.error("Failed to brainstorm activities:", error);
+            toast({
+                title: "Error",
+                description: "Failed to brainstorm activities.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleSaveActivity = async (activity: Activity) => {
+        try {
+            await addActivity(activity);
+            toast({
+                title: "Success",
+                description: "Activity saved successfully!",
+            });
+        } catch (error) {
+            console.error("Error saving activity:", error);
+            toast({
+                title: "Error",
+                description: "Failed to save activity.",
+                variant: "destructive",
+            });
         }
     };
 
@@ -81,7 +166,7 @@ const VoiceToTextBrainstorming = () => {
         <CardHeader>
           <CardTitle>Brainstorming mit Sprach-Eingabe</CardTitle>
           <CardDescription>
-            Nutze deine Stimme, um Ideen zu sammeln und Vorschläge zu erhalten.
+            Nutze deine Stimme, um Ideen zu sammeln und Aktivitäten-Vorschläge zu erhalten.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -99,15 +184,22 @@ const VoiceToTextBrainstorming = () => {
           />
           <Button onClick={handleBrainstorm}>Vorschläge generieren</Button>
 
-          {suggestions.length > 0 && (
-            <div>
-              <h3 className="text-xl font-semibold">Vorschläge:</h3>
-              <ul>
-                {suggestions.map((suggestion, index) => (
-                  <li key={index}>{suggestion}</li>
-                ))}
-              </ul>
-            </div>
+          {activities.length > 0 && (
+              <div>
+                  <h3 className="text-xl font-semibold">Aktivitäten Vorschläge:</h3>
+                  <ul>
+                      {activities.map((activity, index) => (
+                          <li key={index} className="py-2">
+                              <div className="flex justify-between items-center">
+                                  <span>{activity.description}</span>
+                                  <Button size="sm" onClick={() => handleSaveActivity(activity)}>
+                                      Save Activity
+                                  </Button>
+                              </div>
+                          </li>
+                      ))}
+                  </ul>
+              </div>
           )}
           <h3 className="text-xl font-semibold mt-4">Konfigurator</h3>
             <div className="grid gap-4">
