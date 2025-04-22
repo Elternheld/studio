@@ -7,6 +7,7 @@ import {Label} from "@/components/ui/label";
 import {Button} from "@/components/ui/button";
 import {useToast} from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
+import Link from "next/link";
 
 const ProfilePage = () => {
   const {
@@ -108,6 +109,9 @@ const ProfilePage = () => {
                 )}
             </div>
             <Button type="submit">Profil speichern</Button>
+            <Link href="/forgot-password" className="text-sm text-gray-500">
+              Passwort vergessen?
+            </Link>
           </form>
         </CardContent>
       </Card>
