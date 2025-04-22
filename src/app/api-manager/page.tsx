@@ -15,6 +15,7 @@ export default function ApiManagerPage() {
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [organisation, setOrganisation] = React.useState('');
     const [description, setDescription] = React.useState('');
+    const [project, setProject] = React.useState('');
   const { toast: useToastHook } = useToast()
     const { apiKeys, addApiKey } = useApiKeyContext();
 
@@ -34,6 +35,10 @@ export default function ApiManagerPage() {
         setDescription(event.target.value);
     };
 
+    const handleChangeProject = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setProject(event.target.value);
+    };
+
 
     const handleSaveApiKey = async () => {
         // Basic validation
@@ -50,7 +55,7 @@ export default function ApiManagerPage() {
         const newApiKey = {
             id: String(Date.now()), // Generate a unique ID (not ideal, but works without a database)
             provider: organisation, // Assuming provider is the same as organisation for simplicity
-            model: 'Unknown', // You might want to add a model selection field
+            model: project, // You might want to add a model selection field
             key: apiKey,
             userId: 'current-user', // Replace with actual user ID
             isActive: true,
@@ -65,6 +70,7 @@ export default function ApiManagerPage() {
         setApiKey('');
         setOrganisation('');
             setDescription('');
+            setProject('');
 
         // Show a success message
         useToastHook({
@@ -92,6 +98,16 @@ export default function ApiManagerPage() {
                 onChange={handleChangeOrganisation}
                 />
           </div>
+            <div>
+                <Label htmlFor="project">Project</Label>
+                <Input
+                    type="text"
+                    id="project"
+                    placeholder="Enter name of project"
+                    value={project}
+                    onChange={handleChangeProject}
+                />
+            </div>
             <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -148,4 +164,5 @@ export default function ApiManagerPage() {
     </div>
   );
 }
+
 
