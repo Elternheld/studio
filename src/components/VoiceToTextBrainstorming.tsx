@@ -184,26 +184,7 @@ const VoiceToTextBrainstorming = () => {
             value={voiceInput}
             onChange={(e) => setVoiceInput(e.target.value)}
           />
-          <Button onClick={handleBrainstorm}>Vorschläge generieren</Button>
-
-          {activities.length > 0 && (
-              <div>
-                  <h3 className="text-xl font-semibold">Aktivitäten Vorschläge:</h3>
-                  <ul>
-                      {activities.map((activity, index) => (
-                          <li key={index} className="py-2">
-                              <div className="flex justify-between items-center">
-                                  <span>{activity.description}</span>
-                                  <Button size="sm" onClick={() => handleSaveActivity(activity)}>
-                                      Save Activity
-                                  </Button>
-                              </div>
-                          </li>
-                      ))}
-                  </ul>
-              </div>
-          )}
-          <h3 className="text-xl font-semibold mt-4">Konfigurator</h3>
+            <h3 className="text-xl font-semibold mt-4">Konfigurator</h3>
             <div className="grid gap-4">
                 <div>
                     <Label htmlFor="altersgruppe">Altersgruppe</Label>
@@ -265,8 +246,26 @@ const VoiceToTextBrainstorming = () => {
                     />
                 </div>
                 <Button onClick={handleSaveConfig}>Konfiguration speichern</Button>
-                <Button onClick={handleGenerateSuggestions}>Vorschläge generieren</Button>
             </div>
+             <Button onClick={handleGenerateSuggestions}>Vorschläge generieren</Button>
+
+          {activities.length > 0 && (
+              <div>
+                  <h3 className="text-xl font-semibold">Aktivitäten Vorschläge:</h3>
+                  <ul>
+                      {activities.map((activity, index) => (
+                          <li key={index} className="py-2">
+                              <div className="flex justify-between items-center">
+                                  <span>{activity.description}</span>
+                                  <Button size="sm" onClick={() => handleSaveActivity(activity)}>
+                                      Save Activity
+                                  </Button>
+                              </div>
+                          </li>
+                      ))}
+                  </ul>
+              </div>
+          )}
         </CardContent>
       </Card>
     </div>
