@@ -99,7 +99,7 @@ export default function RootLayout({
                       )}
                       <SidebarMenuItem>
                         <SidebarMenuButton asChild>
-                          <Link href="/activities" className="flex items-center">
+                        <Link href="/activities" className="flex items-center">
                             <Activity className="mr-2 h-4 w-4" />
                             <span>Aktivitätenfortschritt</span>
                           </Link>
@@ -182,4 +182,3 @@ export default function RootLayout({
     </html>
   );
 }
-
