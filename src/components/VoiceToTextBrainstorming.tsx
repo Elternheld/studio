@@ -5,7 +5,7 @@ import { brainstormActivityIdeas, BrainstormActivityIdeasInput } from '@/ai/flow
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Icons } from '@/components/icons';
+import { Mic } from "lucide-react";
 
 const VoiceToTextBrainstorming = () => {
   const [voiceInput, setVoiceInput] = useState('');
@@ -40,7 +40,7 @@ const VoiceToTextBrainstorming = () => {
           <div className="flex items-center space-x-4">
             <Button variant="outline" onClick={toggleRecording}>
               {isRecording ? 'Aufnahme stoppen' : 'Aufnahme starten'}
-              <Icons.microphone className="ml-2 h-4 w-4" />
+              <Mic className="ml-2 h-4 w-4" />
             </Button>
           </div>
           <Textarea
@@ -67,3 +67,4 @@ const VoiceToTextBrainstorming = () => {
 };
 
 export default VoiceToTextBrainstorming;
+
