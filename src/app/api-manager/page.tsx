@@ -1,26 +1,20 @@
-;"use client";
+"use client";
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, Copy, Trash2 } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { useApiKeyContext } from "@/components/ApiKeyContext";
-import {pingApiKey} from '@/services/api-key-service';
 
 export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [organisation, setOrganisation] = React.useState('');
   const { toast: useToastHook } = useToast()
-    const { apiKeys, addApiKey, updateApiKey, deleteApiKey } = useApiKeyContext();
-
-    const [selectedApiKeyId, setSelectedApiKeyId] = React.useState<string | null>(null);
-    const [pingResults, setPingResults] = React.useState<{ [key: string]: { status: 'pending' | 'success' | 'error', latency: number | null } }>({});
+    const { addApiKey } = useApiKeyContext();
 
   const toggleShowApiKey = () => {
     setShowApiKey(!showApiKey);
@@ -71,52 +65,6 @@ export default function ApiManagerPage() {
         });
     };
 
-    const handleCopyApiKey = (apiKey: string) => {
-        navigator.clipboard.writeText(apiKey);
-        useToastHook({
-            description: "API Key copied to clipboard."
-        });
-    };
-
-    const handleDeleteApiKey = (id: string) => {
-        setSelectedApiKeyId(id); // Set the ID of the API key to be deleted
-    };
-
-    const confirmDeleteApiKey = () => {
-        if (selectedApiKeyId) {
-            deleteApiKey(selectedApiKeyId);
-            setSelectedApiKeyId(null); // Clear the selected API key ID
-            useToastHook({
-                description: "API Key deleted."
-            });
-        }
-    };
-
-    const cancelDeleteApiKey = () => {
-        setSelectedApiKeyId(null); // Clear the selected API key ID
-    };
-
-    const handleApiKeyChange = (id: string, newKey: string) => {
-        updateApiKey(id, { key: newKey });
-    };
-
-    const handleOrganisationChange = (id: string, newOrganisation: string) => {
-        updateApiKey(id, { organisation: newOrganisation });
-    };
-
-    const handlePingApiKey = async (apiKeyId: string, apiKey: string) => {
-        setPingResults(prev => ({ ...prev, [apiKeyId]: { status: 'pending', latency: null } }));
-        const startTime = performance.now();
-        try {
-            const success = await pingApiKey(apiKey);
-            const endTime = performance.now();
-            const latency = endTime - startTime;
-            setPingResults(prev => ({ ...prev, [apiKeyId]: { status: success ? 'success' : 'error', latency } }));
-        } catch (error) {
-            setPingResults(prev => ({ ...prev, [apiKeyId]: { status: 'error', latency: null } }));
-        }
-    };
-
 
   return (
     <div className="container py-12">
@@ -161,97 +109,6 @@ export default function ApiManagerPage() {
             <Button onClick={handleSaveApiKey}>Save API Key</Button>
         </CardContent>
       </Card>
-
-        <Card className="w-[80%] mx-auto mt-8">
-            <CardHeader>
-                <CardTitle>API Keys</CardTitle>
-                <CardDescription>List of all API Keys</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <ScrollArea>
-                    <div className="grid gap-4">
-                        {apiKeys.map((apiKeyItem) => (
-                            <div key={apiKeyItem.id} className="border rounded-md p-4">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <div className="mb-2">
-                                            <Label htmlFor={`organisation-${apiKeyItem.id}`}>Organisation</Label>
-                                            <Input
-                                                type="text"
-                                                id={`organisation-${apiKeyItem.id}`}
-                                                placeholder="Enter issuer organisation of API key"
-                                                value={apiKeyItem.organisation}
-                                                onChange={(e) => handleOrganisationChange(apiKeyItem.id, e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor={`apiKey-${apiKeyItem.id}`}>API Key</Label>
-                                            <div className="relative">
-                                                <Input
-                                                    type={showApiKey ? "text" : "password"}
-                                                    id={`apiKey-${apiKeyItem.id}`}
-                                                    placeholder="Enter your API key"
-                                                    value={apiKeyItem.key}
-                                                    onChange={(e) => handleApiKeyChange(apiKeyItem.id, e.target.value)}
-                                                    className="pr-10"
-                                                />
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={toggleShowApiKey}
-                                                    className="absolute right-1 top-1/2 -translate-y-1/2"
-                                                >
-                                                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        <Button onClick={() => handlePingApiKey(apiKeyItem.id, apiKeyItem.key)}>
-                                            Ping API Key
-                                        </Button>
-                                        {pingResults[apiKeyItem.id]?.status === 'pending' && <p>Pinging...</p>}
-                                        {pingResults[apiKeyItem.id]?.status === 'success' && (
-                                            <p>
-                                                API Key is active and stable (Latency: {pingResults[apiKeyItem.id]?.latency?.toFixed(2)}ms)
-                                            </p>
-                                        )}
-                                        {pingResults[apiKeyItem.id]?.status === 'error' && <p>API Key is not active or unstable.</p>}
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button variant="secondary" size="icon" onClick={() => handleCopyApiKey(apiKeyItem.key)}>
-                                            <Copy className="h-4 w-4"/>
-                                        </Button>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="destructive" size="icon">
-                                                    <Trash2 className="h-4 w-4"/>
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Bist du dir sicher?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        Diese Aktion kann nicht rückgängig gemacht werden.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel onClick={cancelDeleteApiKey}>Abbrechen</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={confirmDeleteApiKey}>Löschen</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </ScrollArea>
-            </CardContent>
-        </Card>
-        {/* Confirmation Dialog */}
-        {selectedApiKeyId && (
-            <div>
-            </div>
-        )}
     </div>
   );
 }
