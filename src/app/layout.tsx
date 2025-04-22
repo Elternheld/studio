@@ -113,14 +113,6 @@ export default function RootLayout({
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <Link href="/api-manager" className="flex items-center">
-                            <KeyRound className="mr-2 h-4 w-4" />
-                            <span>API Manager</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
                     </>
                   )}
                   {userRole === 'service' && (
