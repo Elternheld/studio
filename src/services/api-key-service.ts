@@ -45,13 +45,66 @@ export async function deleteApiKey(id: string) {
     }
 }
 
-export async function pingApiKey(apiKey: string): Promise<boolean> {
-  // Replace with actual API ping logic
-  // This is a placeholder to simulate an API ping
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const isSuccess = apiKey.startsWith('sk-'); // OpenAI keys start with "sk-"
-      resolve(isSuccess);
-    }, 1000);
-  });
+export async function pingApiKey(apiKey: string, organisation: string): Promise<{ success: boolean, message: string, time: number }> {
+    const startTime = performance.now();
+    let success = false;
+    let message = "Unknown Error";
+
+    try {
+        // Replace with actual API ping logic based on the organisation
+        if (organisation === "OpenAI") {
+            // Example for OpenAI (replace with actual OpenAI API call)
+            const response = await fetch("https://api.openai.com/v1/engines", {  // Example endpoint
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                }
+            });
+
+            if (response.ok) {
+                success = true;
+                message = "OpenAI API is active and working.";
+            } else {
+                message = `OpenAI API check failed: ${response.status} - ${response.statusText}`;
+            }
+        } else if (organisation === "Anthropic") {
+            // Example for Anthropic (replace with actual Anthropic API call)
+            const response = await fetch("https://api.anthropic.com/v1/models", {  // Example endpoint
+                headers: {
+                    "x-api-key": apiKey,
+                }
+            });
+
+            if (response.ok) {
+                success = true;
+                message = "Anthropic API is active and working.";
+            } else {
+                message = `Anthropic API check failed: ${response.status} - ${response.statusText}`;
+            }
+        } else if (organisation === "Google") {
+             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+
+
+            if (response.ok) {
+                success = true;
+                message = "Google API is active and working.";
+            } else {
+                message = `Google API check failed: ${response.status} - ${response.statusText}`;
+            }
+
+        }
+        else {
+            message = "Unsupported organisation.  Cannot validate API key.";
+        }
+
+
+    } catch (error:any) {
+        message = `API check failed: ${error.message}`;
+    }
+
+    const endTime = performance.now();
+    const timeTaken = endTime - startTime;
+
+    return { success, message, time: timeTaken };
 };
+
+
