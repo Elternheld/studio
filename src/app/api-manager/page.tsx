@@ -61,6 +61,7 @@ const ApiManagerPage = () => {
                 value={organisation}
                 onChange={handleChangeOrganisation}
                 />
+            <CardDescription>Enter issuer organisation of API key</CardDescription>
           </div>
           <div>
             <Label htmlFor="apiKey">API Key</Label>
