@@ -18,6 +18,8 @@ export default function ApiManagerPage() {
     const [project, setProject] = React.useState('');
   const { toast: useToastHook } = useToast()
     const { apiKeys, addApiKey, deleteApiKey } = useApiKeyContext();
+    const [visibleKeys, setVisibleKeys] = React.useState<{ [key: string]: boolean }>({});
+
 
   const toggleShowApiKey = () => {
     setShowApiKey(!showApiKey);
@@ -85,6 +87,13 @@ export default function ApiManagerPage() {
             title: "Success",
             description: "API Key deleted."
         });
+    };
+
+    const toggleApiKeyVisibility = (id: string) => {
+        setVisibleKeys(prevState => ({
+            ...prevState,
+            [id]: !prevState[id],
+        }));
     };
 
 
@@ -158,22 +167,37 @@ export default function ApiManagerPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="grid gap-4">
-                        {apiKeys.map((key) => (
-                            <div key={key.id} className="border rounded-md p-4 flex items-center justify-between">
-                                <div>
-                                    <p><strong>Organisation:</strong> {key.organisation}</p>
-                                    <p><strong>Project:</strong> {key.model}</p>
-                                    <p><strong>API Key:</strong> {key.key}</p>
+                        {apiKeys.map((key) => {
+                            const isVisible = visibleKeys[key.id] ?? false;
+
+                            return (
+                                <div key={key.id} className="border rounded-md p-4 flex items-center justify-between">
+                                    <div>
+                                        <p><strong>Organisation:</strong> {key.organisation}</p>
+                                        <p><strong>Project:</strong> {key.model}</p>
+                                        <p>
+                                            <strong>API Key:</strong>
+                                            {isVisible ? key.key : '********************'}
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => toggleApiKeyVisibility(key.id)}
+                                                className="inline-block ml-2"
+                                            >
+                                                {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            </Button>
+                                        </p>
+                                    </div>
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => handleDeleteApiKey(key.id)}
+                                    >
+                                        <Trash className="h-4 w-4" />
+                                    </Button>
                                 </div>
-                                <Button
-                                    variant="destructive"
-                                    size="icon"
-                                    onClick={() => handleDeleteApiKey(key.id)}
-                                >
-                                    <Trash className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </CardContent>
             </Card>
