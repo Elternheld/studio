@@ -53,6 +53,28 @@ const VoiceToTextBrainstorming = () => {
         // Here you would typically make an API call to save the configuration to a database
     };
 
+    const handleGenerateSuggestions = async () => {
+        // Use the configured parameters to generate suggestions
+        console.log("Generating suggestions with config:", {
+            ageGroup,
+            indoorOutdoor,
+            weather,
+            timeAvailable,
+            llmModel,
+        });
+
+        // Call the brainstorming function with the voice input and config params
+        try {
+            const result = await brainstormActivityIdeas({
+                voiceInput: `${voiceInput}.
+                Consider these parameters: Age Group: ${ageGroup}, Indoor/Outdoor: ${indoorOutdoor}, Weather: ${weather}, Time Available: ${timeAvailable}, LLM Model: ${llmModel}`
+            } as BrainstormActivityIdeasInput);
+            setSuggestions(result.suggestions);
+        } catch (error) {
+            console.error("Failed to brainstorm activities:", error);
+        }
+    };
+
   return (
     <div className="container py-12">
       <Card className="w-[80%] mx-auto">
@@ -140,7 +162,7 @@ const VoiceToTextBrainstorming = () => {
                     />
                 </div>
                 <Button onClick={handleSaveConfig}>Save Configuration</Button>
-                <Button onClick={handleBrainstorm}>Vorschläge generieren</Button>
+                <Button onClick={handleGenerateSuggestions}>Vorschläge generieren</Button>
             </div>
         </CardContent>
       </Card>
