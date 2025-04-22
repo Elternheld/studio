@@ -185,7 +185,18 @@ const VoiceToTextBrainstorming = () => {
             value={voiceInput}
             onChange={(e) => setVoiceInput(e.target.value)}
           />
-            <h3 className="text-xl font-semibold mt-4">Konfigurator</h3>
+                  <Button onClick={handleBrainstorm}>Brainstorm</Button>
+        </CardContent>
+      </Card>
+
+        <Card className="w-[80%] mx-auto mt-8">
+            <CardHeader>
+                <CardTitle>Konfigurator</CardTitle>
+                <CardDescription>
+                    Konfiguriere die Parameter für die Aktivitätsvorschläge.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
             <div className="grid gap-4">
                 <div>
                     <Label htmlFor="altersgruppe">Altersgruppe</Label>
@@ -248,27 +259,33 @@ const VoiceToTextBrainstorming = () => {
                 </div>
                 <Button onClick={handleSaveConfig}>Konfiguration speichern</Button>
             </div>
-            
+            </CardContent>
+        </Card>
 
           {activities.length > 0 && (
-              <div>
-                  <h3 className="text-xl font-semibold">Aktivitäten Vorschläge:</h3>
+              <Card className="w-[80%] mx-auto mt-8">
+                  <CardHeader>
+                      <CardTitle>Aktivitäten Vorschläge:</CardTitle>
+                      <CardDescription>
+                          Hier sind die generierten Aktivitätsvorschläge.
+                      </CardDescription>
+                  </CardHeader>
+                  <CardContent>
                   <ul>
                       {activities.map((activity, index) => (
                           <li key={index} className="py-2">
                               <div className="flex justify-between items-center">
                                   <span>{activity.description}</span>
                                   <Button size="sm" onClick={() => handleSaveActivity(activity)}>
-                                      Save Activity
+                                      Aktivität speichern
                                   </Button>
                               </div>
                           </li>
                       ))}
                   </ul>
-              </div>
+                  </CardContent>
+              </Card>
           )}
-        </CardContent>
-      </Card>
     </div>
   );
 };
