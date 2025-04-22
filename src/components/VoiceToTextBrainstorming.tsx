@@ -1,4 +1,22 @@
+"use client";
 
+import {generateActivityIdea} from "@/ai/flows/generate-activity-idea";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import React, {useState} from "react";
+
+const VoiceToTextBrainstorming = () => {
+    const [altersgruppe, setAltersgruppe] = useState('');
+    const [drinnenDraussen, setDrinnenDraussen] = useState('');
+    const [wetter, setWetter] = useState('');
+    const [verfuegbareZeit, setVerfuegbareZeit] = useState('');
+    const [llmModell, setLlmModell] = useState('');
+
+    return (
+        <div>
+            <div>
+                <Label htmlFor="altersgruppe">Altersgruppe</Label>
                     <Input
                         type="text"
                         id="altersgruppe"
@@ -47,3 +65,8 @@
                         onChange={(e) => setLlmModell(e.target.value)}
                     />
                 </div>
+            </div>
+    );
+};
+
+export default VoiceToTextBrainstorming;
