@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useApiKeyContext } from "@/components/ApiKeyContext";
+import {pingApiKey} from '@/services/api-key-service';
 
 export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
@@ -19,6 +20,7 @@ export default function ApiManagerPage() {
     const { apiKeys, addApiKey, updateApiKey, deleteApiKey } = useApiKeyContext();
 
     const [selectedApiKeyId, setSelectedApiKeyId] = React.useState<string | null>(null);
+    const [pingResults, setPingResults] = React.useState<{ [key: string]: { status: 'pending' | 'success' | 'error', latency: number | null } }>({});
 
   const toggleShowApiKey = () => {
     setShowApiKey(!showApiKey);
@@ -102,6 +104,19 @@ export default function ApiManagerPage() {
         updateApiKey(id, { organisation: newOrganisation });
     };
 
+    const handlePingApiKey = async (apiKeyId: string, apiKey: string) => {
+        setPingResults(prev => ({ ...prev, [apiKeyId]: { status: 'pending', latency: null } }));
+        const startTime = performance.now();
+        try {
+            const success = await pingApiKey(apiKey);
+            const endTime = performance.now();
+            const latency = endTime - startTime;
+            setPingResults(prev => ({ ...prev, [apiKeyId]: { status: success ? 'success' : 'error', latency } }));
+        } catch (error) {
+            setPingResults(prev => ({ ...prev, [apiKeyId]: { status: 'error', latency: null } }));
+        }
+    };
+
 
   return (
     <div className="container py-12">
@@ -155,29 +170,29 @@ export default function ApiManagerPage() {
             <CardContent>
                 <ScrollArea>
                     <div className="grid gap-4">
-                        {apiKeys.map((apiKey) => (
-                            <div key={apiKey.id} className="border rounded-md p-4">
+                        {apiKeys.map((apiKeyItem) => (
+                            <div key={apiKeyItem.id} className="border rounded-md p-4">
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <div className="mb-2">
-                                            <Label htmlFor={`organisation-${apiKey.id}`}>Organisation</Label>
+                                            <Label htmlFor={`organisation-${apiKeyItem.id}`}>Organisation</Label>
                                             <Input
                                                 type="text"
-                                                id={`organisation-${apiKey.id}`}
+                                                id={`organisation-${apiKeyItem.id}`}
                                                 placeholder="Enter issuer organisation of API key"
-                                                value={apiKey.organisation}
-                                                onChange={(e) => handleOrganisationChange(apiKey.id, e.target.value)}
+                                                value={apiKeyItem.organisation}
+                                                onChange={(e) => handleOrganisationChange(apiKeyItem.id, e.target.value)}
                                             />
                                         </div>
                                         <div>
-                                            <Label htmlFor={`apiKey-${apiKey.id}`}>API Key</Label>
+                                            <Label htmlFor={`apiKey-${apiKeyItem.id}`}>API Key</Label>
                                             <div className="relative">
                                                 <Input
                                                     type={showApiKey ? "text" : "password"}
-                                                    id={`apiKey-${apiKey.id}`}
+                                                    id={`apiKey-${apiKeyItem.id}`}
                                                     placeholder="Enter your API key"
-                                                    value={apiKey.key}
-                                                    onChange={(e) => handleApiKeyChange(apiKey.id, e.target.value)}
+                                                    value={apiKeyItem.key}
+                                                    onChange={(e) => handleApiKeyChange(apiKeyItem.id, e.target.value)}
                                                     className="pr-10"
                                                 />
                                                 <Button
@@ -190,9 +205,19 @@ export default function ApiManagerPage() {
                                                 </Button>
                                             </div>
                                         </div>
+                                        <Button onClick={() => handlePingApiKey(apiKeyItem.id, apiKeyItem.key)}>
+                                            Ping API Key
+                                        </Button>
+                                        {pingResults[apiKeyItem.id]?.status === 'pending' && <p>Pinging...</p>}
+                                        {pingResults[apiKeyItem.id]?.status === 'success' && (
+                                            <p>
+                                                API Key is active and stable (Latency: {pingResults[apiKeyItem.id]?.latency?.toFixed(2)}ms)
+                                            </p>
+                                        )}
+                                        {pingResults[apiKeyItem.id]?.status === 'error' && <p>API Key is not active or unstable.</p>}
                                     </div>
                                     <div className="flex gap-2">
-                                        <Button variant="secondary" size="icon" onClick={() => handleCopyApiKey(apiKey.key)}>
+                                        <Button variant="secondary" size="icon" onClick={() => handleCopyApiKey(apiKeyItem.key)}>
                                             <Copy className="h-4 w-4"/>
                                         </Button>
                                         <AlertDialog>
