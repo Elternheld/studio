@@ -93,6 +93,14 @@ export default function RootLayout({
                       </SidebarMenuItem>
                       <SidebarMenuItem>
                         <SidebarMenuButton asChild>
+                          <Link href="/struktur-vorschlage-aktivitaten" className="flex items-center">
+                            <Activity className="mr-2 h-4 w-4" />
+                            <span>Struktur Vorschläge Aktivitäten</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
                           <Link href="/profile" className="flex items-center">
                             <User className="mr-2 h-4 w-4" />
                             <span>Profil</span>
