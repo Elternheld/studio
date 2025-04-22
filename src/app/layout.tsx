@@ -12,11 +12,6 @@ import { useEffect, useState } from 'react';
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {ApiKeyProvider} from '@/components/ApiKeyContext';
 
-// Import role-based components (replace with actual authentication)
-import { CustomerAccount } from '@/roles/CustomerAccount';
-import { AdminAccount } from '@/roles/AdminAccount';
-import { ServiceAccount } from '@/roles/ServiceAccount';
-
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -182,3 +177,4 @@ export default function RootLayout({
     </html>
   );
 }
+
