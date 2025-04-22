@@ -38,11 +38,13 @@ const VoiceToTextBrainstorming = () => {
   const [voiceInput, setVoiceInput] = useState('');
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isRecording, setIsRecording] = useState(false);
-  const [ageGroup, setAgeGroup] = useState('');
-  const [indoorOutdoor, setIndoorOutdoor] = useState('');
-  const [weather, setWeather] = useState('');
-  const [timeAvailable, setTimeAvailable] = useState('');
-  const [llmModel, setLlmModel] = useState('');
+  const [altersgruppe, setAltersgruppe] = useState('');
+  const [drinnenDraussen, setDrinnenDraussen] = useState('');
+  const [wetter, setWetter] = useState('');
+  const [verfuegbareZeit, setVerfuegbareZeit] = useState('');
+  const [llmModell, setLlmModell] = useState('');
+    const [ersteGedanken, setErsteGedanken] = useState('');
+
   const { toast } = useToast();
 
 
@@ -61,7 +63,7 @@ const VoiceToTextBrainstorming = () => {
                 benefits: [],
                 imageUrl: 'https://picsum.photos/200/300', // placeholder image
                 createdBy: 'user-id', // Replace with actual user ID
-                generatedBy: llmModel || 'DefaultModel',
+                generatedBy: llmModell || 'DefaultModel',
                 createdAt: Date.now(),
             }));
             setActivities(newActivities);
@@ -93,11 +95,11 @@ const VoiceToTextBrainstorming = () => {
     const handleSaveConfig = async () => {
         // Implement logic to save the configuration
         console.log("Saving configuration:", {
-            ageGroup,
-            indoorOutdoor,
-            weather,
-            timeAvailable,
-            llmModel,
+            altersgruppe,
+            drinnenDraussen,
+            wetter,
+            verfuegbareZeit,
+            llmModell,
         });
         // Here you would typically make an API call to save the configuration to a database
     };
@@ -106,7 +108,7 @@ const VoiceToTextBrainstorming = () => {
         try {
             const result = await brainstormActivityIdeas({
                 voiceInput: `${voiceInput}.
-                Consider these parameters: Age Group: ${ageGroup}, Indoor/Outdoor: ${indoorOutdoor}, Weather: ${weather}, Time Available: ${timeAvailable}, LLM Model: ${llmModel}`
+                Consider these parameters: Altersgruppe: ${altersgruppe}, Drinnen/Draußen: ${drinnenDraussen}, Wetter: ${wetter}, Verfügbare Zeit: ${verfuegbareZeit}, LLM Modell: ${llmModell}. Erste Gedanken: ${ersteGedanken}`
             } as BrainstormActivityIdeasInput);
 
             if (result.suggestions && Array.isArray(result.suggestions)) {
@@ -121,7 +123,7 @@ const VoiceToTextBrainstorming = () => {
                     benefits: [],
                     imageUrl: 'https://picsum.photos/200/300', // placeholder image
                     createdBy: 'user-id', // Replace with actual user ID
-                    generatedBy: llmModel || 'DefaultModel',
+                    generatedBy: llmModell || 'DefaultModel',
                     createdAt: Date.now(),
                 }));
                 setActivities(newActivities);
@@ -204,53 +206,62 @@ const VoiceToTextBrainstorming = () => {
           <h3 className="text-xl font-semibold mt-4">Konfigurator</h3>
             <div className="grid gap-4">
                 <div>
-                    <Label htmlFor="ageGroup">Altersgruppe</Label>
+                    <Label htmlFor="altersgruppe">Altersgruppe</Label>
                     <Input
                         type="text"
-                        id="ageGroup"
+                        id="altersgruppe"
                         placeholder="Gib die Altersgruppe ein"
-                        value={ageGroup}
-                        onChange={(e) => setAgeGroup(e.target.value)}
+                        value={altersgruppe}
+                        onChange={(e) => setAltersgruppe(e.target.value)}
                     />
                 </div>
                 <div>
-                    <Label htmlFor="indoorOutdoor">Drinnen/Draußen</Label>
+                    <Label htmlFor="drinnenDraussen">Drinnen/Draußen</Label>
                     <Input
                         type="text"
-                        id="indoorOutdoor"
+                        id="drinnenDraussen"
                         placeholder="Gib Drinnen/Draußen ein"
-                        value={indoorOutdoor}
-                        onChange={(e) => setIndoorOutdoor(e.target.value)}
+                        value={drinnenDraussen}
+                        onChange={(e) => setDrinnenDraussen(e.target.value)}
                     />
                 </div>
                 <div>
-                    <Label htmlFor="weather">Wetter</Label>
+                    <Label htmlFor="wetter">Wetter</Label>
                     <Input
                         type="text"
-                        id="weather"
+                        id="wetter"
                         placeholder="Gib das Wetter ein"
-                        value={weather}
-                        onChange={(e) => setWeather(e.target.value)}
+                        value={wetter}
+                        onChange={(e) => setWetter(e.target.value)}
                     />
                 </div>
                 <div>
-                    <Label htmlFor="timeAvailable">Verfügbare Zeit</Label>
+                    <Label htmlFor="verfuegbareZeit">Verfügbare Zeit</Label>
                     <Input
                         type="text"
-                        id="timeAvailable"
+                        id="verfuegbareZeit"
                         placeholder="Gib die verfügbare Zeit ein"
-                        value={timeAvailable}
-                        onChange={(e) => setTimeAvailable(e.target.value)}
+                        value={verfuegbareZeit}
+                        onChange={(e) => setVerfuegbareZeit(e.target.value)}
                     />
                 </div>
+                  <div>
+                      <Label htmlFor="ersteGedanken">Erste Gedanken - Freitext</Label>
+                      <Textarea
+                          id="ersteGedanken"
+                          placeholder="Gib deine ersten Gedanken ein"
+                          value={ersteGedanken}
+                          onChange={(e) => setErsteGedanken(e.target.value)}
+                      />
+                  </div>
                 <div>
-                    <Label htmlFor="llmModel">LLM Modell</Label>
+                    <Label htmlFor="llmModell">LLM Modell</Label>
                     <Input
                         type="text"
-                        id="llmModel"
+                        id="llmModell"
                         placeholder="Gib das LLM Modell ein"
-                        value={llmModel}
-                        onChange={(e) => setLlmModel(e.target.value)}
+                        value={llmModell}
+                        onChange={(e) => setLlmModell(e.target.value)}
                     />
                 </div>
                 <Button onClick={handleSaveConfig}>Konfiguration speichern</Button>
