@@ -286,6 +286,63 @@ const VoiceToTextBrainstorming = () => {
                   </CardContent>
               </Card>
           )}
+
+                {activities.length > 0 && (
+                    <Card className="w-[80%] mx-auto mt-8">
+                        <CardHeader>
+                            <CardTitle>Aktivitäten</CardTitle>
+                            <CardDescription>
+                                Hier sind die generierten Aktivitäten.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid gap-4">
+                                {activities.map((activity) => (
+                                    <Card key={activity.id} className="border rounded-md p-4">
+                                        <CardHeader>
+                                            <CardTitle>{activity.title}</CardTitle>
+                                            <CardDescription>{activity.description}</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-2">
+                                            <img src={activity.imageUrl} alt={activity.title} className="rounded-md w-full h-auto" />
+                                            <div>
+                                                <h3 className="text-lg font-semibold">Materialien</h3>
+                                                <ul>
+                                                    {activity.materials.map((material, index) => (
+                                                        <li key={index}>{material}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-semibold">Anleitung</h3>
+                                                <p>{activity.instructions}</p>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-semibold">Sicherheitstipps</h3>
+                                                <p>{activity.safetyTips}</p>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-semibold">Pädagogische Vorteile</h3>
+                                                <ul>
+                                                    {activity.benefits.map((benefit, index) => (
+                                                        <li key={index}>{benefit}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <p>Geschätzte Kosten: ${activity.costEstimate}</p>
+                                            <p>Erstellt von: {activity.createdBy}</p>
+                                            <p>Generiert von: {activity.generatedBy}</p>
+                                            <p>Erstellt am: {new Date(activity.createdAt).toLocaleDateString()}</p>
+                                            <Button size="sm" onClick={() => handleSaveActivity(activity)}>
+                                                Aktivität speichern
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
     </div>
   );
 };
