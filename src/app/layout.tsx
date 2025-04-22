@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
 import type {Metadata} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
 import {Toaster} from "@/components/ui/toaster"
 import {Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarInset} from "@/components/ui/sidebar";
-import {Home, Users, Settings, User, KeyRound, Activity, FileText} from "lucide-react";
+import {Home, Users, Settings, User, KeyRound, FileText, Activity} from "lucide-react";
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -95,7 +95,18 @@ export default function RootLayout({
                       <SidebarMenuItem>
                         <SidebarMenuButton asChild>
                         <Link href="/activities" className="flex items-center">
-                            <Activity className="mr-2 h-4 w-4" />
+                           <Activity
+                              xmlns="http://www.w3.org/2000/svg"
+                              width={24}
+                              height={24}
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="lucide lucide-activity mr-2 h-4 w-4"
+                            />
                             <span>Aktivitätenfortschritt</span>
                           </Link>
                         </SidebarMenuButton>
