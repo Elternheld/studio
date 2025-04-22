@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -18,7 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import Link from "next/link";
+import Link from 'next/link';
 import {Activity, Home, Users, KeyRound, FileText, Settings, User} from "lucide-react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
@@ -765,4 +766,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-

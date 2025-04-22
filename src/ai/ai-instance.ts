@@ -10,10 +10,8 @@ export const ai = genkit({
   promptDir: './prompts',
   plugins: [
     googleAI({
-      apiKey: getApiKey(),
+      apiKey: getApiKey() || '', // Provide a default value
     }),
   ],
   model: 'googleai/gemini-2.0-flash',
 });
-
-
