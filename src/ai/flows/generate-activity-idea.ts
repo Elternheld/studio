@@ -13,12 +13,11 @@ import {z} from 'genkit';
 import {Weather, getWeather} from '@/services/weather';
 
 const GenerateActivityIdeaInputSchema = z.object({
-  childAge: z.number().describe('The age of the child in years.'),
-  locationType: z.enum(['indoor', 'outdoor']).describe('The location type (indoor or outdoor).'),
-  weatherDescription: z.string().describe('A description of the weather conditions.'),
-  availableTime: z.number().describe('The available time in minutes.'),
-  locationLat: z.number().optional().describe('The latitude of the location. Required if weather is to be fetched.'),
-  locationLng: z.number().optional().describe('The longitude of the location. Required if weather is to be fetched.'),
+  ageGroup: z.string().describe('The age group of the child (e.g., Kleinkind, Vorschulkind, Grundschulkind).'),
+  indoorOutdoor: z.string().describe('The location type (Drinnen or Draußen).'),
+  weather: z.string().describe('The weather conditions (e.g., sonnig, regnerisch, bewölkt).'),
+  timeAvailable: z.number().describe('The available time in minutes.'),
+  ersteGedanken: z.string().optional().describe('Freitext field for initial thoughts and ideas.'),
 });
 export type GenerateActivityIdeaInput = z.infer<typeof GenerateActivityIdeaInputSchema>;
 
@@ -30,7 +29,7 @@ const GenerateActivityIdeaOutputSchema = z.object({
   costEstimate: z.number().describe('The estimated cost of the activity in USD.'),
   safetyTips: z.string().describe('Important safety tips for the activity.'),
   educationalBenefits: z.array(z.string()).describe('The educational benefits of the activity.'),
-  imageUrl: z.string().describe('A URL of an image representing the activity.'),
+  imageUrl: z.string().describe('A URL of an image representing the activity. Use https://picsum.photos/200/300 for placeholder'),
 });
 export type GenerateActivityIdeaOutput = z.infer<typeof GenerateActivityIdeaOutputSchema>;
 
@@ -42,29 +41,24 @@ const generateActivityPrompt = ai.definePrompt({
   name: 'generateActivityPrompt',
   input: {
     schema: z.object({
-      childAge: z.number().describe('The age of the child in years.'),
-      locationType: z.enum(['indoor', 'outdoor']).describe('The location type (indoor or outdoor).'),
-      weatherDescription: z.string().describe('A description of the weather conditions.'),
-      availableTime: z.number().describe('The available time in minutes.'),
+      ageGroup: z.string().describe('The age group of the child (e.g., Kleinkind, Vorschulkind, Grundschulkind).'),
+      indoorOutdoor: z.string().describe('The location type (Drinnen or Draußen).'),
+      weather: z.string().describe('The weather conditions (e.g., sonnig, regnerisch, bewölkt).'),
+      timeAvailable: z.number().describe('The available time in minutes.'),
+      ersteGedanken: z.string().optional().describe('Freitext field for initial thoughts and ideas.'),
     }),
   },
   output: {
-    schema: z.object({
-      title: z.string().describe('The title of the activity.'),
-      description: z.string().describe('A brief description of the activity.'),
-      instructions: z.string().describe('Step-by-step instructions for the activity.'),
-      materials: z.array(z.string()).describe('A list of materials needed for the activity.'),
-      costEstimate: z.number().describe('The estimated cost of the activity in USD.'),
-      safetyTips: z.string().describe('Important safety tips for the activity.'),
-      educationalBenefits: z.array(z.string()).describe('The educational benefits of the activity.'),
-      imageUrl: z.string().describe('A URL of an image representing the activity.'),
-    }),
+    schema: GenerateActivityIdeaOutputSchema,
   },
   prompt: `You are a creative activity planner for children.
 
-  Generate an engaging activity idea for a child who is {{childAge}} years old, considering it will be done {{locationType}}.
-  The weather is: {{weatherDescription}}.
-  The activity should take approximately {{availableTime}} minutes.
+  Generate an engaging activity idea based on the following criteria:
+  - Age Group: {{ageGroup}}
+  - Location: {{indoorOutdoor}}
+  - Weather: {{weather}}
+  - Available Time: {{timeAvailable}} minutes
+  - Additional Notes: {{ersteGedanken}}
 
   The response should contain:
   - A title for the activity.
@@ -74,7 +68,7 @@ const generateActivityPrompt = ai.definePrompt({
   - An estimated cost of the activity in USD.
   - Important safety tips for the activity.
   - A list of educational benefits of the activity.
-  - A URL of an image representing the activity.
+  - A URL of an image representing the activity. Use https://picsum.photos/200/300 for placeholder
 `,
 });
 
@@ -88,21 +82,7 @@ const generateActivityIdeaFlow = ai.defineFlow<
     outputSchema: GenerateActivityIdeaOutputSchema,
   },
   async input => {
-    let weatherDescription = input.weatherDescription;
-
-    // If no weather description is provided, and location coordinates are, fetch the weather
-    if (!weatherDescription && input.locationLat && input.locationLng) {
-      const weather: Weather = await getWeather({
-        lat: input.locationLat,
-        lng: input.locationLng,
-      });
-      weatherDescription = `The weather is ${weather.conditions} and the temperature is ${weather.temperatureFarenheit}F.`
-    }
-
-    const {output} = await generateActivityPrompt({
-      ...input,
-      weatherDescription,
-    });
+    const {output} = await generateActivityPrompt(input);
     return output!;
   }
 );

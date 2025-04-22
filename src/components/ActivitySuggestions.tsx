@@ -8,24 +8,10 @@ import {
     CardHeader,
     CardTitle
 } from "@/components/ui/card";
-
-interface Activity {
-    id: string;
-    title: string;
-    description: string;
-    instructions: string;
-    materials: string[];
-    costEstimate: number;
-    safetyTips: string;
-    benefits: string[];
-    imageUrl: string;
-    createdBy: string;
-    generatedBy: string;
-    createdAt: string;
-}
+import {GenerateActivityIdeaOutput} from "@/ai/flows/generate-activity-idea";
 
 interface ActivitySuggestionsProps {
-    suggestions: Activity[];
+    suggestions: GenerateActivityIdeaOutput[];
 }
 
 const ActivitySuggestions: React.FC<ActivitySuggestionsProps> = ({suggestions}) => {
@@ -38,8 +24,8 @@ const ActivitySuggestions: React.FC<ActivitySuggestionsProps> = ({suggestions}) 
                         <CardDescription>Hier sind die generierten Vorschläge basierend auf deiner Konfiguration.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {suggestions.map((activity) => (
-                            <div key={activity.id} className="border rounded-md p-4">
+                        {suggestions.map((activity, index) => (
+                            <div key={index} className="border rounded-md p-4">
                                 <h3 className="text-xl font-semibold">{activity.title}</h3>
                                 <p>{activity.description}</p>
                                 <img src={activity.imageUrl} alt={activity.title} className="rounded-md w-full h-auto"/>
@@ -62,7 +48,7 @@ const ActivitySuggestions: React.FC<ActivitySuggestionsProps> = ({suggestions}) 
                                 <div>
                                     <h4 className="text-lg font-semibold">Pädagogische Vorteile</h4>
                                     <ul>
-                                        {activity.benefits.map((benefit, index) => (
+                                        {activity.educationalBenefits.map((benefit, index) => (
                                             <li key={index}>{benefit}</li>
                                         ))}
                                     </ul>

@@ -20,24 +20,25 @@ import {Slider} from '@/components/ui/slider';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import {cn} from '@/lib/utils';
 import ActivitySuggestions from "@/components/ActivitySuggestions";
+import {generateActivityIdea, GenerateActivityIdeaOutput} from "@/ai/flows/generate-activity-idea";
 
 const activityConfigSchema = z.object({
-    ageGroup: z.string(),
-    indoorOutdoor: z.string(),
-    weather: z.string(),
-    timeAvailable: z.number(),
-    ersteGedanken: z.string(),
+    ageGroup: z.string().describe("The age group of the child (e.g., Kleinkind, Vorschulkind, Grundschulkind)."),
+    indoorOutdoor: z.string().describe("The location type (Drinnen or Draußen)."),
+    weather: z.string().describe("The weather conditions (e.g., sonnig, regnerisch, bewölkt)."),
+    timeAvailable: z.number().describe("The available time in minutes."),
+    ersteGedanken: z.string().optional().describe("Freitext field for initial thoughts and ideas."),
 });
 
 export default function ActivityKonfigurator() {
-    const [activity, setActivity] = useState<any>(null);
+    const [activity, setActivity] = useState<GenerateActivityIdeaOutput | null>(null);
 
     const form = useForm<z.infer<typeof activityConfigSchema>>({
         resolver: zodResolver(activityConfigSchema),
         defaultValues: {
-            ageGroup: "",
-            indoorOutdoor: "",
-            weather: "",
+            ageGroup: "Kleinkind",
+            indoorOutdoor: "Drinnen",
+            weather: "Sonnig",
             timeAvailable: 60,
             ersteGedanken: "",
         },
@@ -45,39 +46,13 @@ export default function ActivityKonfigurator() {
 
     async function onSubmit(values: z.infer<typeof activityConfigSchema>) {
         console.log(values);
-
-        // Simuliere generierte Vorschläge
-        const mockSuggestions = [
-            {
-                id: "1",
-                title: "Kreatives Malen",
-                description: "Ein entspannendes Malerlebnis.",
-                instructions: "Verschiedene Maltechniken ausprobieren.",
-                materials: ["Farben", "Pinsel", "Papier"],
-                costEstimate: 10,
-                safetyTips: "Auf gute Belüftung achten.",
-                benefits: ["Kreativität", "Entspannung"],
-                imageUrl: "https://picsum.photos/200/300",
-                createdBy: "user123",
-                generatedBy: "GPT-3",
-                createdAt: new Date().toISOString(),
-            },
-            {
-                id: "2",
-                title: "Gemeinsames Kochen",
-                description: "Ein lustiges Kocherlebnis.",
-                instructions: "Einfaches Rezept auswählen.",
-                materials: ["Zutaten", "Kochutensilien"],
-                costEstimate: 15,
-                safetyTips: "Auf Hygiene achten.",
-                benefits: ["Teamwork", "Kochen lernen"],
-                imageUrl: "https://picsum.photos/200/300",
-                createdBy: "user456",
-                generatedBy: "GPT-3",
-                createdAt: new Date().toISOString(),
-            },
-        ];
-        setActivity(mockSuggestions);
+        try {
+            const result = await generateActivityIdea(values);
+            setActivity(result);
+        } catch (error) {
+            console.error("Failed to generate activity:", error);
+            // Handle error appropriately (e.g., display an error message)
+        }
     }
 
     return (
@@ -210,7 +185,7 @@ export default function ActivityKonfigurator() {
                 </CardContent>
             </Card>
             {activity && (
-                <ActivitySuggestions suggestions={activity} />
+                <ActivitySuggestions suggestions={[activity]} />
             )}
         </div>
     );
