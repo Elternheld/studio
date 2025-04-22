@@ -280,8 +280,7 @@ const ApiManagerPage = () => {
             </div>
           ) : (
             <p>No API keys added yet.</p>
-          )}
-          )}
+          ))}
         </CardContent>
       </Card>
     </div>
