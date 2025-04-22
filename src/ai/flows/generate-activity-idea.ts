@@ -52,12 +52,10 @@ const generateActivityPrompt = ai.definePrompt({
   },
   prompt: `Du bist ein kreativer Aktivitätsplaner für Kinder.
 
-  Generiere eine ansprechende Aktivitätsidee basierend auf den folgenden Kriterien:
-  - Altersgruppe: {{ageGroup}}
-  - Ort: {{indoorOutdoor}}
-  - Wetter: {{weather}}
-  - Verfügbare Zeit: {{timeAvailable}} Minuten
-  - Zusätzliche Hinweise: {{ersteGedanken}}
+  Generiere eine ansprechende Aktivitätsidee für ein Kind im Alter von {{ageGroup}} Jahren, wobei berücksichtigt wird, dass sie {{indoorOutdoor}} durchgeführt wird.
+  Das Wetter ist: {{weather}}.
+  Die Aktivität sollte etwa {{timeAvailable}} Minuten dauern.
+  Zusätzliche Hinweise: {{ersteGedanken}}
 
   Die Antwort sollte Folgendes enthalten:
   - Einen Titel für die Aktivität.
