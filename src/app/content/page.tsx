@@ -29,6 +29,7 @@ export default function ContentPage() {
     const [body, setBody] = useState('');
     const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
     const { toast } = useToast();
+    const [csvFile, setCsvFile] = useState<File | null>(null);
 
     useEffect(() => {
         const loadContents = async () => {
@@ -121,6 +122,77 @@ export default function ContentPage() {
         }
     };
 
+    const handleCsvImport = async (file: File) => {
+        if (!file) {
+            toast({
+                title: "Error",
+                description: "No CSV file selected.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = async (e) => {
+            const csvText = e.target?.result as string;
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',');
+
+            for (let i = 1; i < lines.length; i++) {
+                const data = lines[i].split(',');
+                if (data.length === headers.length) {
+                    const newContent: Content = {
+                        id: String(Date.now()),
+                        title: data[0],
+                        description: data[1],
+                        body: data[2],
+                    };
+
+                    try {
+                        await addContentToDb(newContent);
+                        setContents(prevContents => [...prevContents, newContent]);
+                    } catch (error) {
+                        console.error("Error adding content from CSV:", error);
+                        toast({
+                            title: "Error",
+                            description: `Failed to add content from CSV line ${i + 1}.`,
+                            variant: "destructive",
+                        });
+                    }
+                } else {
+                    toast({
+                        title: "Error",
+                        description: `Invalid CSV format at line ${i + 1}.`,
+                        variant: "destructive",
+                    });
+                }
+            }
+
+            toast({
+                title: "Success",
+                description: "Content imported from CSV."
+            });
+        };
+
+        reader.onerror = () => {
+            toast({
+                title: "Error",
+                description: "Failed to read CSV file.",
+                variant: "destructive",
+            });
+        };
+
+        reader.readAsText(file);
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            setCsvFile(event.target.files[0]);
+        }
+    };
+
+
     return (
         <div className="container py-12">
             <Card className="w-[80%] mx-auto">
@@ -159,7 +231,24 @@ export default function ContentPage() {
                     </div>
                     <div className="flex gap-2">
                         <Button onClick={handleAddContent}>Add Content</Button>
-                        <Button variant="secondary" size="sm">Data Import via CSV</Button>
+                        <Input
+                            type="file"
+                            id="csv-upload"
+                            accept=".csv"
+                            style={{ display: 'none' }}
+                            onChange={handleFileChange}
+                        />
+                        <Label htmlFor="csv-upload">
+                            <Button variant="secondary" size="sm" onClick={() => {
+                                const fileInput = document.getElementById('csv-upload') as HTMLInputElement;
+                                fileInput?.click();
+                                if (csvFile) {
+                                    handleCsvImport(csvFile);
+                                }
+                            }}>
+                                Data Import via CSV
+                            </Button>
+                        </Label>
                     </div>
                     {selectedContentId && (
                         <Button onClick={handleUpdateContent}>Update Content</Button>
