@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, Copy, Trash2, Edit } from "lucide-react";
+import { Eye, EyeOff, Copy, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,7 +19,6 @@ export default function ApiManagerPage() {
     const { apiKeys, addApiKey, updateApiKey, deleteApiKey } = useApiKeyContext();
 
     const [selectedApiKeyId, setSelectedApiKeyId] = React.useState<string | null>(null);
-    const [editMode, setEditMode] = React.useState(false);
 
   const toggleShowApiKey = () => {
     setShowApiKey(!showApiKey);
@@ -95,27 +94,12 @@ export default function ApiManagerPage() {
         setSelectedApiKeyId(null); // Clear the selected API key ID
     };
 
-    const handleEditApiKey = (id: string) => {
-        const apiKeyToEdit = apiKeys.find(key => key.id === id);
-        if (apiKeyToEdit) {
-            setSelectedApiKeyId(id);
-            setApiKey(apiKeyToEdit.key);
-            setOrganisation(apiKeyToEdit.organisation);
-            setEditMode(true);
-        }
+    const handleApiKeyChange = (id: string, newKey: string) => {
+        updateApiKey(id, { key: newKey });
     };
 
-    const handleUpdateApiKey = () => {
-        if (selectedApiKeyId) {
-            updateApiKey(selectedApiKeyId, { key: apiKey, organisation: organisation });
-            setApiKey('');
-            setOrganisation('');
-            setEditMode(false);
-            setSelectedApiKeyId(null);
-            useToastHook({
-                description: "API Key updated."
-            });
-        }
+    const handleOrganisationChange = (id: string, newOrganisation: string) => {
+        updateApiKey(id, { organisation: newOrganisation });
     };
 
 
@@ -159,11 +143,7 @@ export default function ApiManagerPage() {
               </Button>
             </div>
           </div>
-            {editMode ? (
-                <Button onClick={handleUpdateApiKey}>Update API Key</Button>
-            ) : (
-                <Button onClick={handleSaveApiKey}>Save API Key</Button>
-            )}
+            <Button onClick={handleSaveApiKey}>Save API Key</Button>
         </CardContent>
       </Card>
 
@@ -179,15 +159,41 @@ export default function ApiManagerPage() {
                             <div key={apiKey.id} className="border rounded-md p-4">
                                 <div className="flex justify-between items-center">
                                     <div>
-                                        <p className="font-semibold">{apiKey.organisation} - {apiKey.model}</p>
-                                        <p className="text-sm text-muted-foreground">ID: {apiKey.id}</p>
+                                        <div className="mb-2">
+                                            <Label htmlFor={`organisation-${apiKey.id}`}>Organisation</Label>
+                                            <Input
+                                                type="text"
+                                                id={`organisation-${apiKey.id}`}
+                                                placeholder="Enter issuer organisation of API key"
+                                                value={apiKey.organisation}
+                                                onChange={(e) => handleOrganisationChange(apiKey.id, e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor={`apiKey-${apiKey.id}`}>API Key</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    type={showApiKey ? "text" : "password"}
+                                                    id={`apiKey-${apiKey.id}`}
+                                                    placeholder="Enter your API key"
+                                                    value={apiKey.key}
+                                                    onChange={(e) => handleApiKeyChange(apiKey.id, e.target.value)}
+                                                    className="pr-10"
+                                                />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={toggleShowApiKey}
+                                                    className="absolute right-1 top-1/2 -translate-y-1/2"
+                                                >
+                                                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                </Button>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="flex gap-2">
                                         <Button variant="secondary" size="icon" onClick={() => handleCopyApiKey(apiKey.key)}>
                                             <Copy className="h-4 w-4"/>
-                                        </Button>
-                                        <Button variant="outline" size="icon" onClick={() => handleEditApiKey(apiKey.id)}>
-                                            <Edit className="h-4 w-4"/>
                                         </Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
