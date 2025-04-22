@@ -2,20 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast"
 import {
   getApiKeys,
   addApiKey as addApiKeyToDb,
   updateApiKey as updateApiKeyInDb,
   deleteApiKey as deleteApiKeyFromDb,
+  pingApiKey as pingApiKeyFn,
 } from '@/services/api-key-service';
 
 interface ApiKey {
@@ -150,7 +146,7 @@ const ApiManagerPage = () => {
     const startTime = performance.now();
     try {
       // Simulate API ping (replace with actual API call)
-      const isSuccess = await pingApiKey(key);
+      const isSuccess = await pingApiKeyFn(key);
       const endTime = performance.now();
       const latency = endTime - startTime;
   
@@ -187,16 +183,6 @@ const ApiManagerPage = () => {
     }
   };
   
-  const pingApiKey = async (apiKey: string): Promise<boolean> => {
-    // Replace with actual API ping logic
-    // This is a placeholder to simulate an API ping
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const isSuccess = apiKey.startsWith('sk-'); // OpenAI keys start with "sk-"
-        resolve(isSuccess);
-      }, 1000);
-    });
-  };
 
 
   return (
