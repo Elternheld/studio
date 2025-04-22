@@ -150,7 +150,7 @@ export default function ActivityGenerator() {
             <CardDescription>{activity.description}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <img src={activity.imageUrl} alt={activity.title} className="rounded-md w-full h-auto" />
+              <img src={activity.imageUrl} alt={activity.title} className="rounded-md w-full h-auto" />
             <div>
               <h3 className="text-xl font-semibold">Materialien</h3>
               <ul>
