@@ -1,3 +1,5 @@
+'use client';
+
 import type {Metadata} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
@@ -6,6 +8,8 @@ import {Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel,
 import {Home, Users, Activity, Settings, User} from "lucide-react";
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 
 // Import role-based components (replace with actual authentication)
 import { CustomerAccount } from '@/roles/CustomerAccount';
@@ -22,10 +26,10 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {
-  title: 'ElternHeld',
-  description: 'Parenting Simplified',
-};
+// export const metadata: Metadata = {
+//   title: 'ElternHeld',
+//   description: 'Parenting Simplified',
+// };
 
 const SidebarHeader = ({children}: {children: React.ReactNode}) => {
   return (
@@ -36,10 +40,11 @@ const SidebarHeader = ({children}: {children: React.ReactNode}) => {
 }
 
 // Placeholder for authentication (replace with actual logic)
-const getUserRole = () => {
-  // This is a placeholder - replace with actual authentication logic
-  // to fetch the user's role (e.g., from Firebase Auth, a database, etc.)
-  return 'customer'; // Possible values: 'customer', 'admin', 'service'
+const getUserRoleFromLocalStorage = () => {
+  if (typeof window === 'undefined') {
+    return 'customer';
+  }
+  return localStorage.getItem('userRole') || 'customer';
 };
 
 
@@ -49,7 +54,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const userRole = getUserRole();
+  const [userRole, setUserRole] = useState<string>(getUserRoleFromLocalStorage());
+
+  useEffect(() => {
+    localStorage.setItem('userRole', userRole);
+  }, [userRole]);
+
+  const handleRoleChange = (newRole: string) => {
+    setUserRole(newRole);
+  };
+
 
   return (
     <html lang="en">
@@ -127,6 +141,24 @@ export default function RootLayout({
             </SidebarFooter>
           </Sidebar>
           <SidebarInset>
+            <div className="absolute top-2 right-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleRoleChange('customer')}>
+                    Customer
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleRoleChange('admin')}>
+                    Admin
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleRoleChange('service')}>
+                    Service
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             {children}
             <Toaster />
           </SidebarInset>
@@ -135,3 +167,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    
