@@ -7,6 +7,11 @@ import {Home, Users, Activity, Settings, User} from "lucide-react";
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
+// Import role-based components (replace with actual authentication)
+import { CustomerAccount } from '@/roles/CustomerAccount';
+import { AdminAccount } from '@/roles/AdminAccount';
+import { ServiceAccount } from '@/roles/ServiceAccount';
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -30,11 +35,22 @@ const SidebarHeader = ({children}: {children: React.ReactNode}) => {
   )
 }
 
+// Placeholder for authentication (replace with actual logic)
+const getUserRole = () => {
+  // This is a placeholder - replace with actual authentication logic
+  // to fetch the user's role (e.g., from Firebase Auth, a database, etc.)
+  return 'customer'; // Possible values: 'customer', 'admin', 'service'
+};
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const userRole = getUserRole();
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
@@ -55,14 +71,16 @@ export default function RootLayout({
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/community" className="flex items-center">
-                        <Users className="mr-2 h-4 w-4" />
-                        <span>Community</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  {userRole === 'customer' && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <Link href="/community" className="flex items-center">
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>Community</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                  )}
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link href="/activities" className="flex items-center">
@@ -71,14 +89,26 @@ export default function RootLayout({
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/tools" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Deine Tools</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  {userRole === 'admin' && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <Link href="/tools" className="flex items-center">
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>Admin Tools</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                  )}
+                  {userRole === 'service' && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <Link href="/service" className="flex items-center">
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>Service Tools</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                  )}
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link href="/profile" className="flex items-center">
