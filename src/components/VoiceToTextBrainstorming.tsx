@@ -204,56 +204,56 @@ const VoiceToTextBrainstorming = () => {
           <h3 className="text-xl font-semibold mt-4">Konfigurator</h3>
             <div className="grid gap-4">
                 <div>
-                    <Label htmlFor="ageGroup">Age Group</Label>
+                    <Label htmlFor="ageGroup">Altersgruppe</Label>
                     <Input
                         type="text"
                         id="ageGroup"
-                        placeholder="Enter age group"
+                        placeholder="Gib die Altersgruppe ein"
                         value={ageGroup}
                         onChange={(e) => setAgeGroup(e.target.value)}
                     />
                 </div>
                 <div>
-                    <Label htmlFor="indoorOutdoor">Indoor/Outdoor</Label>
+                    <Label htmlFor="indoorOutdoor">Drinnen/Draußen</Label>
                     <Input
                         type="text"
                         id="indoorOutdoor"
-                        placeholder="Enter indoor/outdoor"
+                        placeholder="Gib Drinnen/Draußen ein"
                         value={indoorOutdoor}
                         onChange={(e) => setIndoorOutdoor(e.target.value)}
                     />
                 </div>
                 <div>
-                    <Label htmlFor="weather">Weather</Label>
+                    <Label htmlFor="weather">Wetter</Label>
                     <Input
                         type="text"
                         id="weather"
-                        placeholder="Enter weather"
+                        placeholder="Gib das Wetter ein"
                         value={weather}
                         onChange={(e) => setWeather(e.target.value)}
                     />
                 </div>
                 <div>
-                    <Label htmlFor="timeAvailable">Time Available</Label>
+                    <Label htmlFor="timeAvailable">Verfügbare Zeit</Label>
                     <Input
                         type="text"
                         id="timeAvailable"
-                        placeholder="Enter time available"
+                        placeholder="Gib die verfügbare Zeit ein"
                         value={timeAvailable}
                         onChange={(e) => setTimeAvailable(e.target.value)}
                     />
                 </div>
                 <div>
-                    <Label htmlFor="llmModel">LLM Model</Label>
+                    <Label htmlFor="llmModel">LLM Modell</Label>
                     <Input
                         type="text"
                         id="llmModel"
-                        placeholder="Enter LLM Model"
+                        placeholder="Gib das LLM Modell ein"
                         value={llmModel}
                         onChange={(e) => setLlmModel(e.target.value)}
                     />
                 </div>
-                <Button onClick={handleSaveConfig}>Save Configuration</Button>
+                <Button onClick={handleSaveConfig}>Konfiguration speichern</Button>
                 <Button onClick={handleGenerateSuggestions}>Vorschläge generieren</Button>
             </div>
         </CardContent>
