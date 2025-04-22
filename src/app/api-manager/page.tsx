@@ -7,22 +7,16 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Copy, Trash2, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
-import { getApiKeys } from "@/services/api-key-service";
-import { toast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useApiKeyContext } from "@/components/ApiKeyContext";
 
 export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [organisation, setOrganisation] = React.useState('');
   const { toast: useToastHook } = useToast()
-
-  // Mock API Keys (because persistent storage is unavailable)
-  const [apiKeys, setApiKeys] = React.useState([
-    { id: '1', provider: 'OpenAI', model: 'GPT-3', key: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', userId: 'user1', isActive: true, organisation: 'OpenAI' },
-    { id: '2', provider: 'Anthropic', model: 'Claude', key: 'key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', userId: 'user1', isActive: false, organisation: 'Anthropic' },
-  ]);
+    const { apiKeys, addApiKey, updateApiKey, deleteApiKey } = useApiKeyContext();
 
     const [selectedApiKeyId, setSelectedApiKeyId] = React.useState<string | null>(null);
     const [editMode, setEditMode] = React.useState(false);
@@ -63,7 +57,7 @@ export default function ApiManagerPage() {
         };
 
         // Update the state with the new API key
-        setApiKeys(prevKeys => [...prevKeys, newApiKey]);
+        addApiKey(newApiKey);
 
         // Clear the input fields
         setApiKey('');
@@ -89,7 +83,7 @@ export default function ApiManagerPage() {
 
     const confirmDeleteApiKey = () => {
         if (selectedApiKeyId) {
-            setApiKeys(prevKeys => prevKeys.filter(key => key.id !== selectedApiKeyId));
+            deleteApiKey(selectedApiKeyId);
             setSelectedApiKeyId(null); // Clear the selected API key ID
             useToastHook({
                 description: "API Key deleted."
@@ -113,11 +107,7 @@ export default function ApiManagerPage() {
 
     const handleUpdateApiKey = () => {
         if (selectedApiKeyId) {
-            setApiKeys(prevKeys =>
-                prevKeys.map(key =>
-                    key.id === selectedApiKeyId ? { ...key, key: apiKey, organisation: organisation } : key
-                )
-            );
+            updateApiKey(selectedApiKeyId, { key: apiKey, organisation: organisation });
             setApiKey('');
             setOrganisation('');
             setEditMode(false);
@@ -234,5 +224,3 @@ export default function ApiManagerPage() {
     </div>
   );
 }
-
-
