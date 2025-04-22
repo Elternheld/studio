@@ -106,5 +106,3 @@ export async function pingApiKey(apiKey: string, organisation: string): Promise<
 
     return { success, message, time: timeTaken };
 };
-
-

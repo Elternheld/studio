@@ -1,4 +1,3 @@
-// src/ai/flows/brainstorm-activity-ideas.ts
 'use server';
 /**
  * @fileOverview Brainstorms activity ideas using voice input and provides suggestions from an AI assistant.

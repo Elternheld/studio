@@ -1,5 +1,3 @@
-"use client";
-
 import VoiceToTextBrainstorming from "@/components/VoiceToTextBrainstorming";
 import React from "react";
 import ActivityKonfigurator from "@/components/ActivityKonfigurator";

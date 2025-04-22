@@ -277,5 +277,3 @@ const ServiceSection = () => {
   }
   return null;
 };
-
-

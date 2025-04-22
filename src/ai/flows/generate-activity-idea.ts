@@ -9,7 +9,6 @@
 
 import {ai} from '@/ai/ai-instance';
 import {z} from 'genkit';
-import {Weather, getWeather} from '@/services/weather';
 
 const GenerateActivityIdeaInputSchema = z.object({
   ageGroup: z.string().describe('The age group of the child (e.g., Kleinkind, Vorschulkind, Grundschulkind).'),
@@ -65,7 +64,7 @@ const generateActivityPrompt = ai.definePrompt({
   - Eine geschätzte Kosten der Aktivität in USD.
   - Wichtige Sicherheitshinweise für die Aktivität.
   - Eine Liste der pädagogischen Vorteile der Aktivität.
-`,
+  `,
 });
 
 const generateImagePrompt = ai.definePrompt({

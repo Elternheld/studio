@@ -1,12 +1,10 @@
-"use client";
-
 import React from 'react';
 
 const ActivitiesPage = () => {
   return (
     <div className="container py-12">
-      <h1>Activities</h1>
-      <p>Track your child's progress and find new activities.</p>
+      <h1>Aktivitätenfortschritt</h1>
+      <p>Hier können Sie strukturierte Aktivitätsvorschläge finden.</p>
     </div>
   );
 };

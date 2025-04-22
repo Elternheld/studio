@@ -120,13 +120,18 @@ export default function ApiManagerPage() {
         }
 
         const startTime = performance.now();
-        const isActive = await pingApiKey(selectedApiKey);
+        const isActive = await pingApiKey(selectedApiKey, organisation);
         const endTime = performance.now();
         const timeTaken = endTime - startTime;
 
         setPingResult({
             time: timeTaken,
-            active: isActive,
+            active: isActive.success,
+        });
+
+        useToastHook({
+            title: "API Test",
+            description: isActive.message,
         });
     };
 
@@ -141,57 +146,6 @@ export default function ApiManagerPage() {
             setUser(selectedKey.userId);
         }
     };
-
-    const handleUpdateApiKey = async () => {
-        if (!selectedApiKey) {
-            useToastHook({
-                title: "Error",
-                description: "No API Key selected.",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        const apiKeyToUpdate = apiKeys.find(key => key.key === selectedApiKey);
-        if (!apiKeyToUpdate) {
-            useToastHook({
-                title: "Error",
-                description: "Selected API Key not found.",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        // Create a new API key object
-        const updatedApiKey = {
-            ...apiKeyToUpdate,
-            provider: organisation, // Assuming provider is the same as organisation for simplicity
-            model: project, // You might want to add a model selection field
-            key: apiKey,
-            userId: user, // Replace with actual user ID
-            organisation: organisation,
-            description: description,
-        };
-
-        // Update the state with the new API key
-        await updateApiKey(apiKeyToUpdate.id, updatedApiKey);
-
-        // Clear the input fields
-        setApiKey('');
-        setOrganisation('');
-        setDescription('');
-        setProject('');
-        setUser('');
-        setSelectedApiKey(undefined);
-
-
-        // Show a success message
-        useToastHook({
-            title: "Success",
-            description: "API Key updated."
-        });
-    };
-
 
   return (
     <div className="container py-12">
@@ -262,9 +216,6 @@ export default function ApiManagerPage() {
             </div>
           </div>
             <Button onClick={handleSaveApiKey}>Save API Key</Button>
-            {selectedApiKey && (
-                <Button onClick={handleUpdateApiKey}>Update API Key</Button>
-            )}
         </CardContent>
       </Card>
 
@@ -346,5 +297,3 @@ export default function ApiManagerPage() {
     </div>
   );
 }
-
-
