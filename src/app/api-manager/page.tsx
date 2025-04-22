@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export default async function ApiManagerPage() {
+export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [organisation, setOrganisation] = React.useState('');
@@ -234,4 +234,5 @@ export default async function ApiManagerPage() {
     </div>
   );
 }
+
 
