@@ -157,7 +157,10 @@ export default function ContentPage() {
                             onChange={(e) => setBody(e.target.value)}
                         />
                     </div>
-                    <Button onClick={handleAddContent}>Add Content</Button>
+                    <div className="flex gap-2">
+                        <Button onClick={handleAddContent}>Add Content</Button>
+                        <Button variant="secondary" size="sm">Data Import via CSV</Button>
+                    </div>
                     {selectedContentId && (
                         <Button onClick={handleUpdateContent}>Update Content</Button>
                     )}
@@ -201,4 +204,3 @@ export default function ContentPage() {
         </div>
     );
 }
-
