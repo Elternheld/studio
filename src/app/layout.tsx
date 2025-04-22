@@ -5,7 +5,7 @@ import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
 import {Toaster} from "@/components/ui/toaster"
 import {Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarInset} from "@/components/ui/sidebar";
-import {Home, Users, Settings, User, KeyRound, Activity} from "lucide-react";
+import {Home, Users, Settings, User, KeyRound, Activity, FileText} from "lucide-react";
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -97,6 +97,14 @@ export default function RootLayout({
                         <Link href="/activities" className="flex items-center">
                             <Activity className="mr-2 h-4 w-4" />
                             <span>Aktivitätenfortschritt</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                                            <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                        <Link href="/content" className="flex items-center">
+                            <FileText className="mr-2 h-4 w-4" />
+                            <span>Content</span>
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
