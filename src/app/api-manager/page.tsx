@@ -18,6 +18,7 @@ export default function ApiManagerPage() {
   const [organisation, setOrganisation] = React.useState('');
     const [description, setDescription] = React.useState('');
     const [project, setProject] = React.useState('');
+    const [user, setUser] = React.useState('');
   const { toast: useToastHook } = useToast()
     const { apiKeys, addApiKey, deleteApiKey } = useApiKeyContext();
     const [visibleKeys, setVisibleKeys] = React.useState<{ [key: string]: boolean }>({});
@@ -48,6 +49,10 @@ export default function ApiManagerPage() {
         setProject(event.target.value);
     };
 
+    const handleChangeUser = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUser(event.target.value);
+    };
+
 
     const handleSaveApiKey = async () => {
         // Basic validation
@@ -66,7 +71,7 @@ export default function ApiManagerPage() {
             provider: organisation, // Assuming provider is the same as organisation for simplicity
             model: project, // You might want to add a model selection field
             key: apiKey,
-            userId: 'current-user', // Replace with actual user ID
+            userId: user, // Replace with actual user ID
             isActive: true,
             organisation: organisation,
             description: description,
@@ -80,6 +85,7 @@ export default function ApiManagerPage() {
         setOrganisation('');
             setDescription('');
             setProject('');
+            setUser('');
 
         // Show a success message
         useToastHook({
@@ -154,6 +160,16 @@ export default function ApiManagerPage() {
                 />
             </div>
             <div>
+                <Label htmlFor="user">User</Label>
+                <Input
+                    type="text"
+                    id="user"
+                    placeholder="Enter name of user"
+                    value={user}
+                    onChange={handleChangeUser}
+                />
+            </div>
+            <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                     id="description"
@@ -203,6 +219,7 @@ export default function ApiManagerPage() {
                                     <div>
                                         <p><strong>Organisation:</strong> {key.organisation}</p>
                                         <p><strong>Project:</strong> {key.model}</p>
+                                        <p><strong>User:</strong> {key.userId}</p>
                                         <p>
                                             <strong>API Key:</strong>
                                             {isVisible ? key.key : '********************'}
@@ -264,5 +281,4 @@ export default function ApiManagerPage() {
     </div>
   );
 }
-
 
