@@ -6,10 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from "lucide-react";
+import { useToast } from "@/hooks/use-toast"
 
 const ApiManagerPage = () => {
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
+  const [organisation, setOrganisation] = useState('');
+  const { toast } = useToast()
 
   const toggleShowApiKey = () => {
     setShowApiKey(!showApiKey);
@@ -17,6 +20,28 @@ const ApiManagerPage = () => {
 
   const handleChangeApiKey = (event: React.ChangeEvent<HTMLInputElement>) => {
     setApiKey(event.target.value);
+  };
+
+    const handleChangeOrganisation = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setOrganisation(event.target.value);
+    };
+
+
+  const handleSaveApiKey = async () => {
+        // Basic validation
+        if (!apiKey || !organisation) {
+            toast({
+                title: "Error",
+                description: "API Key and Organisation cannot be empty.",
+                variant: "destructive",
+            });
+            return;
+        }
+        // TODO: save api key
+        toast({
+            title: "Success",
+            description: "API Key saved."
+        })
   };
 
   return (
@@ -27,6 +52,16 @@ const ApiManagerPage = () => {
           <CardDescription>Manage your API keys for various AI services.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="organisation">Organisation</Label>
+            <Input
+                type="text"
+                id="organisation"
+                placeholder="Enter your Organisation"
+                value={organisation}
+                onChange={handleChangeOrganisation}
+                />
+          </div>
           <div>
             <Label htmlFor="apiKey">API Key</Label>
             <div className="relative">
@@ -48,7 +83,7 @@ const ApiManagerPage = () => {
               </Button>
             </div>
           </div>
-          <Button>Save API Key</Button>
+          <Button onClick={handleSaveApiKey}>Save API Key</Button>
         </CardContent>
       </Card>
     </div>
