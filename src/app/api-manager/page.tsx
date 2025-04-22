@@ -11,6 +11,12 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast"
+import {
+  getApiKeys,
+  addApiKey as addApiKeyToDb,
+  updateApiKey as updateApiKeyInDb,
+  deleteApiKey as deleteApiKeyFromDb,
+} from '@/services/api-key-service';
 
 interface ApiKey {
   id: string;
@@ -21,93 +27,177 @@ interface ApiKey {
   status: 'active' | 'inactive' | 'pending' | 'error';
 }
 
-const dummyApiKeys: ApiKey[] = [
-  {
-    id: '1',
-    name: 'OpenAI API Key',
-    provider: 'OpenAI',
-    model: 'GPT-4',
-    key: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'Google AI API Key',
-    provider: 'GoogleAI',
-    model: 'Gemini Pro',
-    key: 'AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    status: 'inactive',
-  },
-];
-
 const ApiManagerPage = () => {
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>(dummyApiKeys);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [newApiKey, setNewApiKey] = useState<Omit<ApiKey, 'id' | 'status'>>({
     name: '',
     provider: '',
     model: '',
     key: '',
   });
-  const [pingResults, setPingResults] = useState<{ [key: string]: 'success' | 'error' }>({});
-    const { toast } = useToast()
+  const [pingResults, setPingResults] = useState<{ [key: string]: { status: 'pending' | 'success' | 'error', latency: number | null } }>({});
+  const { toast } = useToast()
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load API keys from local storage or database here
-    // For now, using dummy data
+    loadApiKeys();
   }, []);
+
+  const loadApiKeys = async () => {
+    setLoading(true);
+    try {
+      const keys = await getApiKeys();
+      setApiKeys(keys);
+    } catch (error) {
+      console.error("Failed to load API keys:", error);
+      toast({
+        title: "Failed to Load API Keys",
+        description: "Failed to retrieve API keys from the database.",
+        variant: "destructive",
+      });
+      setApiKeys([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setNewApiKey({ ...newApiKey, [e.target.name]: e.target.value });
   };
 
-  const handleAddApiKey = () => {
-    const id = Math.random().toString(36).substring(7); // Generate a simple unique ID
-    const apiKeyToAdd: ApiKey = { ...newApiKey, id, status: 'pending' };
-    setApiKeys([...apiKeys, apiKeyToAdd]);
-    setNewApiKey({ name: '', provider: '', model: '', key: '' });
+  const handleAddApiKey = async () => {
+    try {
+      const id = Math.random().toString(36).substring(7); // Generate a simple unique ID
+      const apiKeyToAdd: ApiKey = { ...newApiKey, id, status: 'pending' };
+      setApiKeys([...apiKeys, apiKeyToAdd]);
+      setNewApiKey({ name: '', provider: '', model: '', key: '' });
 
-    // Simulate API key verification (replace with actual API call)
-    setTimeout(() => {
-      setApiKeys(prevKeys =>
-        prevKeys.map(key => {
-          if (key.id === id) {
-            return { ...key, status: 'active' }; // Assume verification is successful
-          }
-          return key;
+      await addApiKeyToDb(apiKeyToAdd);
+
+      // Simulate API key verification (replace with actual API call)
+      setTimeout(() => {
+        setApiKeys(prevKeys =>
+          prevKeys.map(key => {
+            if (key.id === id) {
+              return { ...key, status: 'active' }; // Assume verification is successful
+            }
+            return key;
+          })
+        );
+        toast({
+          title: "API Key Added",
+          description: "API Key has been successfully added.",
         })
+      }, 2000);
+
+      loadApiKeys(); // Reload API keys to reflect changes
+
+    } catch (error) {
+      console.error("Error adding API key:", error);
+      toast({
+        title: "Error Adding API Key",
+        description: "Failed to add the API key to the database.",
+        variant: "destructive",
+      });
+      loadApiKeys();
+    }
+  };
+
+  const handleUpdateApiKey = async (id: string, updatedKey: Partial<ApiKey>) => {
+    try {
+      await updateApiKeyInDb(id, updatedKey);
+      setApiKeys(prevKeys =>
+        prevKeys.map(key => (key.id === id ? { ...key, ...updatedKey } : key))
       );
       toast({
-        title: "API Key Added",
-        description: "API Key has been successfully added.",
-      })
-    }, 2000);
+        title: "API Key Updated",
+        description: "API Key has been successfully updated.",
+      });
+      loadApiKeys(); // Refresh API keys after update
+    } catch (error) {
+      console.error("Error updating API key:", error);
+      toast({
+        title: "Error Updating API Key",
+        description: "Failed to update the API key.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteApiKey = async (id: string) => {
+    try {
+      await deleteApiKeyFromDb(id);
+      setApiKeys(prevKeys => prevKeys.filter(key => key.id !== id));
+      toast({
+        title: "API Key Deleted",
+        description: "API Key has been successfully deleted.",
+      });
+      loadApiKeys(); // Refresh API keys after deletion
+    } catch (error) {
+      console.error("Error deleting API key:", error);
+      toast({
+        title: "Error Deleting API Key",
+        description: "Failed to delete the API key.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePingApiKey = async (id: string, key: string) => {
-    // In a real application, you would make an API call to check the key's validity
-    // Here, we simulate the ping with a timeout
-    setPingResults(prevResults => ({ ...prevResults, [id]: 'pending' }));
-    
-    // Simulate API ping (replace with actual API call)
-    setTimeout(() => {
-      // Simulate success or failure based on the API key (for demonstration)
-      const isSuccess = key.startsWith('sk-'); // OpenAI keys start with "sk-"
-      setPingResults(prevResults => ({ ...prevResults, [id]: isSuccess ? 'success' : 'error' }));
+    setPingResults(prevResults => ({ ...prevResults, [id]: { status: 'pending', latency: null } }));
+  
+    const startTime = performance.now();
+    try {
+      // Simulate API ping (replace with actual API call)
+      const isSuccess = await pingApiKey(key);
+      const endTime = performance.now();
+      const latency = endTime - startTime;
+  
+      setPingResults(prevResults => ({
+        ...prevResults,
+        [id]: { status: isSuccess ? 'success' : 'error', latency: latency },
+      }));
+  
       if (isSuccess) {
         toast({
           title: "API Key Pinged",
-          description: "API Key has been successfully pinged.",
-        })
-      }
-      else {
+          description: `API Key is active! Latency: ${latency.toFixed(2)}ms`,
+        });
+      } else {
         toast({
           title: "API Key Ping Failed",
-          description: "API Key ping failed.",
+          description: "API Key is not valid.",
           variant: "destructive",
-        })
+        });
       }
-    }, 2000);
+    } catch (error) {
+      console.error("Ping failed:", error);
+      const endTime = performance.now();
+      const latency = endTime - startTime;
+      setPingResults(prevResults => ({
+        ...prevResults,
+        [id]: { status: 'error', latency: latency },
+      }));
+      toast({
+        title: "API Key Ping Failed",
+        description: `API Key ping failed. Latency: ${latency.toFixed(2)}ms`,
+        variant: "destructive",
+      });
+    }
   };
+  
+  const pingApiKey = async (apiKey: string): Promise<boolean> => {
+    // Replace with actual API ping logic
+    // This is a placeholder to simulate an API ping
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const isSuccess = apiKey.startsWith('sk-'); // OpenAI keys start with "sk-"
+        resolve(isSuccess);
+      }, 1000);
+    });
+  };
+
 
   return (
     <div className="container py-12">
@@ -146,7 +236,10 @@ const ApiManagerPage = () => {
           <CardDescription>List of all your API keys.</CardDescription>
         </CardHeader>
         <CardContent>
-          {apiKeys.length > 0 ? (
+        {loading ? (
+            <p>Loading API keys...</p>
+          ) : (
+            apiKeys.length > 0 ? (
             <div className="grid gap-4">
               {apiKeys.map((apiKey) => (
                 <div key={apiKey.id} className="border rounded-md p-4">
@@ -158,25 +251,50 @@ const ApiManagerPage = () => {
                     Status: {apiKey.status}
                     {apiKey.status === 'error' && ' - Please check your API key.'}
                   </p>
-                  <Button
-                    onClick={() => handlePingApiKey(apiKey.id, apiKey.key)}
-                    disabled={pingResults[apiKey.id] === 'pending' || apiKey.status !== 'active'}
-                  >
-                    {pingResults[apiKey.id] === 'pending'
-                      ? 'Pinging...'
-                      : 'Ping API Key'}
-                  </Button>
-                  {pingResults[apiKey.id] === 'success' && (
-                    <Label className="text-green-500">API Key is active!</Label>
-                  )}
-                  {pingResults[apiKey.id] === 'error' && (
-                    <Label className="text-red-500">API Key is not valid.</Label>
-                  )}
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      onClick={() => handlePingApiKey(apiKey.id, apiKey.key)}
+                      disabled={pingResults[apiKey.id]?.status === 'pending' || apiKey.status !== 'active'}
+                    >
+                      {pingResults[apiKey.id]?.status === 'pending'
+                        ? 'Pinging...'
+                        : 'Ping API Key'}
+                    </Button>
+                    {pingResults[apiKey.id]?.status === 'success' && (
+                      <Label className="text-green-500">
+                        API Key is active! Latency: {pingResults[apiKey.id]?.latency?.toFixed(2)}ms
+                      </Label>
+                    )}
+                    {pingResults[apiKey.id]?.status === 'error' && (
+                      <Label className="text-red-500">
+                        API Key is not valid. Latency: {pingResults[apiKey.id]?.latency?.toFixed(2)}ms
+                      </Label>
+                    )}
+
+                    <Button onClick={() => {
+                      const newKey = prompt("Enter new API Key", apiKey.key)
+                      if (newKey) {
+                        handleUpdateApiKey(apiKey.id, { key: newKey })
+                      }
+                    }}>
+                      Adjust API Key
+                    </Button>
+
+                    <Button onClick={() => {
+                      const confirmDelete = confirm("Are you sure you want to delete this API key?");
+                      if (confirmDelete) {
+                        handleDeleteApiKey(apiKey.id);
+                      }
+                    }} variant="destructive">
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
             <p>No API keys added yet.</p>
+          )}
           )}
         </CardContent>
       </Card>
