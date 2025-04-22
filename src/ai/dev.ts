@@ -1,1 +1,2 @@
-// Flows will be imported for their side effects in this file.
+import '@/ai/flows/generate-activity-idea.ts';
+import '@/ai/flows/brainstorm-activity-ideas.ts';
