@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
 import { useApiKeyContext } from "@/components/ApiKeyContext";
 import {Textarea} from "@/components/ui/textarea";
@@ -17,7 +17,7 @@ export default function ApiManagerPage() {
     const [description, setDescription] = React.useState('');
     const [project, setProject] = React.useState('');
   const { toast: useToastHook } = useToast()
-    const { apiKeys, addApiKey } = useApiKeyContext();
+    const { apiKeys, addApiKey, deleteApiKey } = useApiKeyContext();
 
   const toggleShowApiKey = () => {
     setShowApiKey(!showApiKey);
@@ -76,6 +76,14 @@ export default function ApiManagerPage() {
         useToastHook({
             title: "Success",
             description: "API Key saved."
+        });
+    };
+
+    const handleDeleteApiKey = (id: string) => {
+        deleteApiKey(id);
+        useToastHook({
+            title: "Success",
+            description: "API Key deleted."
         });
     };
 
@@ -151,10 +159,19 @@ export default function ApiManagerPage() {
                 <CardContent>
                     <div className="grid gap-4">
                         {apiKeys.map((key) => (
-                            <div key={key.id} className="border rounded-md p-4">
-                                <p><strong>Organisation:</strong> {key.organisation}</p>
-                                <p><strong>Project:</strong> {key.model}</p>
-                                <p><strong>API Key:</strong> {key.key}</p>
+                            <div key={key.id} className="border rounded-md p-4 flex items-center justify-between">
+                                <div>
+                                    <p><strong>Organisation:</strong> {key.organisation}</p>
+                                    <p><strong>Project:</strong> {key.model}</p>
+                                    <p><strong>API Key:</strong> {key.key}</p>
+                                </div>
+                                <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={() => handleDeleteApiKey(key.id)}
+                                >
+                                    <Trash className="h-4 w-4" />
+                                </Button>
                             </div>
                         ))}
                     </div>

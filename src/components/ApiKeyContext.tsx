@@ -11,6 +11,7 @@ interface ApiKey {
     userId: string;
     isActive: boolean;
     organisation: string;
+    description: string;
 }
 
 // Define the context type
@@ -36,8 +37,8 @@ interface ApiKeyProviderProps {
 
 export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
     const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-        { id: '1', provider: 'OpenAI', model: 'GPT-3', key: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', userId: 'user1', isActive: true, organisation: 'OpenAI' },
-        { id: '2', provider: 'Anthropic', model: 'Claude', key: 'key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', userId: 'user1', isActive: false, organisation: 'Anthropic' },
+        { id: '1', provider: 'OpenAI', model: 'GPT-3', key: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', userId: 'user1', isActive: true, organisation: 'OpenAI', description: '' },
+        { id: '2', provider: 'Anthropic', model: 'Claude', key: 'key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', userId: 'user1', isActive: false, organisation: 'Anthropic', description: '' },
     ]);
 
     const addApiKey = (apiKey: ApiKey) => {
