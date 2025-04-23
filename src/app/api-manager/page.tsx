@@ -34,7 +34,6 @@ export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [organisation, setOrganisation] = React.useState('');
-  const [project, setProject] = React.useState('');
   const [description, setDescription] = React.useState('');
     const [llmModel, setLlmModel] = React.useState('');
     const [user, setUser] = React.useState('');
@@ -90,13 +89,9 @@ export default function ApiManagerPage() {
         setUserOrganisation(event.target.value);
     };
 
-    const handleChangeProject = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setProject(event.target.value);
-    };
-
 
     const handleSaveApiKey = async () => {
-        if (!apiKey || !organisation || !project || !user || !userOrganisation) {
+        if (!apiKey || !organisation  || !user || !userOrganisation) {
             useToastHook({
                 title: "Error",
                 description: "Please fill in all the required fields.",
@@ -116,8 +111,7 @@ export default function ApiManagerPage() {
             description: description,
             apiKeyType: apiKeyType,
             accountType: accountType,
-            userOrganisation: userOrganisation,
-            project: project // Store the project
+            userOrganisation: userOrganisation
         };
 
         try {
@@ -140,7 +134,6 @@ export default function ApiManagerPage() {
         setApiKey('');
         setShowApiKey(false);
         setOrganisation('');
-        setProject('');
         setDescription('');
         setLlmModel('');
         setUser('');
@@ -196,7 +189,6 @@ export default function ApiManagerPage() {
             setSelectedApiKey(selectedKey.key);
             setApiKey(selectedKey.key);
             setOrganisation(selectedKey.organisation);
-            setProject(selectedKey.project);
             setDescription(selectedKey.description);
             setLlmModel(selectedKey.model);
             setUser(selectedKey.userId);
@@ -230,16 +222,15 @@ export default function ApiManagerPage() {
               </Select>
           </div>
 
-            <div>
-                <Label htmlFor="project">Project</Label>
-                <Input
-                    type="text"
-                    id="project"
-                    placeholder="Enter name of project"
-                    value={project}
-                    onChange={handleChangeProject}
-                />
-            </div>
+-            <div>
+-                <Label htmlFor="project">Project</Label>
+-                <Input
+-                    type="text"
+-                    id="project"
+-                    placeholder="Enter name of project"
+-                    onChange={handleChangeProject}
+-                />
+-            </div>
 
             {organisation !== '' && (
                 <div>
@@ -364,7 +355,7 @@ export default function ApiManagerPage() {
                                 <div key={key.id} className="border rounded-md p-4 flex items-center justify-between">
                                     <div>
                                         <p><strong>Service Provider:</strong> {key.organisation}</p>
-                                        <p><strong>Project:</strong> {key.project}</p>
+-                                       <p><strong>Project:</strong> {key.project}</p>
                                         <p><strong>Type:</strong> {key.apiKeyType}</p>
                                         {key.apiKeyType === 'LLM-Model' && (
                                             <p><strong>LLM Model:</strong> {key.model}</p>
@@ -373,63 +364,18 @@ export default function ApiManagerPage() {
                                         <p><strong>User Organisation:</strong> {key.userOrganisation}</p>
                                         <p><strong>Account Type:</strong> {key.accountType}</p>
                                         <p>
-                                            <strong>API Key:</strong>
-                                            {isVisible ? key.key : '********************'}
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => toggleApiKeyVisibility(key.id)}
-                                                className="inline-block ml-2"
-                                            >
-                                                {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </Button>
-                                        </p>
-                                    </div>
-                                    <Button
-                                        variant="destructive"
-                                        size="icon"
-                                        onClick={() => handleDeleteApiKey(key.id)}
-                                    >
-                                        <Trash className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </CardContent>
-            </Card>
-        )}
-
-        <Card className="w-[80%] mx-auto mt-8">
-            <CardHeader>
-                <CardTitle>API Test</CardTitle>
-                <CardDescription>Test the connectivity of your API keys.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div>
-                    <Label htmlFor="apiKey">Select API Key</Label>
-                    <Select onValueChange={handleApiKeySelection}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select an API Key" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {apiKeys.map((key) => (
-                                <SelectItem key={key.id} value={key.key}>
-                                    {key.organisation} - {key.model}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <Button onClick={handlePingApiKey}>Ping API</Button>
-                {pingResult.time !== null && (
-                    <div>
-                        <p>Ping Time: {pingResult.time.toFixed(2)} ms</p>
-                        <p>Status: {pingResult.active ? "Active" : "Inactive"}</p>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
-    </div>
-  );
-}
+@@ -321,7 +310,6 @@
+                                 <SelectItem key={key.id} value={key.key}>
+                                     {key.organisation} - {key.model}
+                                 </SelectItem>
++
+                             ))}
+                         </SelectContent>
+                     </Select>
+@@ -341,5 +329,4 @@
+             </CardContent>
+         </Card>
+     </div>
+-  );
+-}
+\ No newline at end of file
