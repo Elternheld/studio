@@ -9,7 +9,7 @@ import { Eye, EyeOff, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
 import { useApiKeyContext } from "@/components/ApiKeyContext";
 import {Textarea} from "@/components/ui/textarea";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {pingApiKey} from "@/services/api-key-service";
 
 const AVAILABLE_ORGANISATIONS = [
@@ -95,7 +95,7 @@ export default function ApiManagerPage() {
         if (!apiKey || !organisation) {
             useToastHook({
                 title: "Error",
-                description: "API Key and Organisation cannot be empty.",
+                description: "API Key and Service Provider cannot be empty.",
                 variant: "destructive",
             });
             return;
@@ -201,10 +201,10 @@ export default function ApiManagerPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="organisation">Organisation</Label>
+            <Label htmlFor="organisation">Service Provider</Label>
               <Select onValueChange={handleChangeOrganisation} value={organisation}>
                   <SelectTrigger>
-                      <SelectValue placeholder="Select an Organisation" />
+                      <SelectValue placeholder="Select a Service Provider" />
                   </SelectTrigger>
                   <SelectContent>
                       {AVAILABLE_ORGANISATIONS.map((org) => (
@@ -338,7 +338,7 @@ export default function ApiManagerPage() {
                             return (
                                 <div key={key.id} className="border rounded-md p-4 flex items-center justify-between">
                                     <div>
-                                        <p><strong>Organisation:</strong> {key.organisation}</p>
+                                        <p><strong>Service Provider:</strong> {key.organisation}</p>
                                         <p><strong>Type:</strong> {key.apiKeyType}</p>
                                         {key.apiKeyType === 'LLM-Model' && (
                                             <p><strong>LLM Model:</strong> {key.model}</p>
@@ -407,3 +407,4 @@ export default function ApiManagerPage() {
     </div>
   );
 }
+
