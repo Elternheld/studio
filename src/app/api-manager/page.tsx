@@ -48,6 +48,7 @@ export default function ApiManagerPage() {
 
     const [apiKeyType, setApiKeyType] = React.useState('');
     const [accountType, setAccountType] = React.useState('');
+    const [userOrganisation, setUserOrganisation] = React.useState('');
 
 
   const toggleShowApiKey = () => {
@@ -84,6 +85,10 @@ export default function ApiManagerPage() {
         setAccountType(value);
     };
 
+    const handleChangeUserOrganisation = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUserOrganisation(event.target.value);
+    };
+
 
     const handleSaveApiKey = async () => {
         // Basic validation
@@ -108,6 +113,7 @@ export default function ApiManagerPage() {
             description: description,
             apiKeyType: apiKeyType,
             accountType: accountType,
+            userOrganisation: userOrganisation
         };
 
         // Update the state with the new API key
@@ -121,6 +127,7 @@ export default function ApiManagerPage() {
             setUser('');
             setApiKeyType('');
             setAccountType('');
+            setUserOrganisation('');
 
         // Show a success message
         useToastHook({
@@ -181,6 +188,7 @@ export default function ApiManagerPage() {
             setUser(selectedKey.userId);
             setApiKeyType(selectedKey.apiKeyType);
             setAccountType(selectedKey.accountType);
+            setUserOrganisation(selectedKey.userOrganisation);
         }
     };
 
@@ -256,6 +264,17 @@ export default function ApiManagerPage() {
             </div>
 
             <div>
+                <Label htmlFor="userOrganisation">User Organisation</Label>
+                <Input
+                    type="text"
+                    id="userOrganisation"
+                    placeholder="Enter name of user organisation"
+                    value={userOrganisation}
+                    onChange={handleChangeUserOrganisation}
+                />
+            </div>
+
+            <div>
                 <Label htmlFor="accountType">Account Type</Label>
                 <Select onValueChange={handleChangeAccountType} value={accountType}>
                     <SelectTrigger>
@@ -325,6 +344,7 @@ export default function ApiManagerPage() {
                                             <p><strong>LLM Model:</strong> {key.model}</p>
                                         )}
                                         <p><strong>User:</strong> {key.userId}</p>
+                                        <p><strong>User Organisation:</strong> {key.userOrganisation}</p>
                                         <p><strong>Account Type:</strong> {key.accountType}</p>
                                         <p>
                                             <strong>API Key:</strong>
@@ -387,5 +407,3 @@ export default function ApiManagerPage() {
     </div>
   );
 }
-
-
