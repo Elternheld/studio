@@ -136,7 +136,7 @@ export default function RootLayout({
                               </SidebarMenuItem>
                               <SidebarMenuItem>
                                   <SidebarMenuButton asChild>
-                                      <Link href="/content" className="flex items-center">
+                                      <Link href="http://localhost:1337/admin" className="flex items-center">
                                           <FileText className="mr-2 h-4 w-4"/>
                                           <span>Content</span>
                                       </Link>
@@ -280,7 +280,7 @@ const AdminSection = () => {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                       <SidebarMenuButton asChild>
-                          <Link href="/content" className="flex items-center">
+                          <Link href="http://localhost:1337/admin" className="flex items-center">
                               <FileText className="mr-2 h-4 w-4" />
                               <span>Content</span>
                           </Link>
@@ -330,4 +330,3 @@ const ServiceSection = () => {
   }
   return null;
 };
-
