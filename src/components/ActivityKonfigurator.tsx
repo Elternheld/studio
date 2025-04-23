@@ -21,7 +21,6 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/c
 import {cn} from '@/lib/utils';
 import ActivitySuggestions from "@/components/ActivitySuggestions";
 import {generateActivityIdea, GenerateActivityIdeaOutput} from "@/ai/flows/generate-activity-idea";
-import VoiceToTextBrainstorming from "@/components/VoiceToTextBrainstorming";
 
 const activityConfigSchema = z.object({
     ageGroup: z.string().describe("The age group of the child (e.g., Kleinkind, Vorschulkind, Grundschulkind)."),
@@ -186,19 +185,10 @@ export default function ActivityKonfigurator() {
                 </CardContent>
             </Card>
 
-            <Card className="w-[80%] mx-auto mt-8">
-                <CardHeader>
-                    <CardTitle>ElternHeld Voice-Bot</CardTitle>
-                    <CardDescription>Brainstorme Ideen mit unserem KI-gestützten Sprachassistenten.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <VoiceToTextBrainstorming className="mb-4" />
-                </CardContent>
-            </Card>
-
             {activity && (
                 <ActivitySuggestions suggestions={[activity]} />
             )}
         </div>
     );
 }
+
