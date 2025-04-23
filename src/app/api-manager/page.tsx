@@ -12,6 +12,13 @@ import {Textarea} from "@/components/ui/textarea";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {pingApiKey} from "@/services/api-key-service";
 
+const AVAILABLE_ORGANISATIONS = [
+    "OpenAI",
+    "Anthropic",
+    "Google",
+    "AssemblyAI",
+]
+
 export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
@@ -37,8 +44,8 @@ export default function ApiManagerPage() {
     setApiKey(event.target.value);
   };
 
-    const handleChangeOrganisation = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setOrganisation(event.target.value);
+    const handleChangeOrganisation = (value: string) => {
+        setOrganisation(value);
     };
 
     const handleChangeDescription = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -157,13 +164,18 @@ export default function ApiManagerPage() {
         <CardContent className="space-y-4">
           <div>
             <Label htmlFor="organisation">Organisation</Label>
-            <Input
-                type="text"
-                id="organisation"
-                placeholder="Enter issuer organisation of API key"
-                value={organisation}
-                onChange={handleChangeOrganisation}
-                />
+              <Select onValueChange={handleChangeOrganisation} value={organisation}>
+                  <SelectTrigger>
+                      <SelectValue placeholder="Select an Organisation" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      {AVAILABLE_ORGANISATIONS.map((org) => (
+                          <SelectItem key={org} value={org}>
+                              {org}
+                          </SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
           </div>
             <div>
                 <Label htmlFor="project">Project</Label>
@@ -297,3 +309,4 @@ export default function ApiManagerPage() {
     </div>
   );
 }
+
