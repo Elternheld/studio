@@ -14,6 +14,10 @@ interface ApiKey {
     isActive: boolean;
     organisation: string;
     description: string;
+    apiKeyType: string;
+    accountType: string;
+    userOrganisation: string;
+    project: string;
 }
 
 // Define the context type
@@ -42,38 +46,38 @@ export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
 
     useEffect(() => {
         const loadApiKeys = async () => {
-            // Try to load from localStorage first
-            const storedKeys = localStorage.getItem('apiKeys');
-            if (storedKeys) {
-                setApiKeys(JSON.parse(storedKeys));
-            } else {
-                // If not in localStorage, load from database
+            try {
                 const keys = await getApiKeys();
                 setApiKeys(keys);
-                localStorage.setItem('apiKeys', JSON.stringify(keys)); // Store in localStorage
+            } catch (error) {
+                console.error("Failed to load API keys:", error);
             }
         };
 
         loadApiKeys();
     }, []);
 
-    useEffect(() => {
-        // Save API keys to localStorage whenever they change
-        localStorage.setItem('apiKeys', JSON.stringify(apiKeys));
-    }, [apiKeys]);
 
     const addApiKey = async (apiKey: ApiKey) => {
-        await addApiKeyToDb(apiKey);
-        setApiKeys(prevKeys => [...prevKeys, apiKey]);
+        try {
+            await addApiKeyToDb(apiKey);
+            setApiKeys(prevKeys => [...prevKeys, apiKey]);
+        } catch (error) {
+            console.error("Error adding API key:", error);
+        }
     };
 
     const updateApiKey = async (id: string, apiKey: Partial<ApiKey>) => {
-        await updateApiKeyInDb(id, apiKey);
-        setApiKeys(prevKeys =>
-            prevKeys.map(key =>
-                key.id === id ? { ...key, ...apiKey } : key
-            )
-        );
+        try {
+            await updateApiKeyInDb(id, apiKey);
+            setApiKeys(prevKeys =>
+                prevKeys.map(key =>
+                    key.id === id ? { ...key, ...apiKey } : key
+                )
+            );
+        } catch (error) {
+            console.error("Error updating API key:", error);
+        }
     };
 
     const deleteApiKey = async (id: string) => {
@@ -82,7 +86,6 @@ export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
             setApiKeys(prevKeys => prevKeys.filter(key => key.id !== id));
         } catch (error) {
             console.error("Error deleting API key:", error);
-            // Optionally handle the error, e.g., show a toast notification
         }
     };
 

@@ -81,16 +81,19 @@ export async function pingApiKey(apiKey: string, organisation: string): Promise<
                 message = `Anthropic API check failed: ${response.status} - ${response.statusText}`;
             }
         } else if (organisation === "Google") {
-             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
 
-
-            if (response.ok) {
-                success = true;
-                message = "Google API is active and working.";
-            } else {
-                message = `Google API check failed: ${response.status} - ${response.statusText}`;
+                if (response.ok) {
+                    success = true;
+                    message = "Google API is active and working.";
+                } else {
+                    message = `Google API check failed: ${response.status} - ${response.statusText}`;
+                }
+            } catch (error: any) {
+                message = `Google API check failed: ${error.message}`;
+                console.error("Google API check error:", error);
             }
-
         }
         else {
             message = "Unsupported organisation.  Cannot validate API key.";

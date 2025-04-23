@@ -34,6 +34,7 @@ export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [organisation, setOrganisation] = React.useState('');
+  const [project, setProject] = React.useState('');
   const [description, setDescription] = React.useState('');
     const [llmModel, setLlmModel] = React.useState('');
     const [user, setUser] = React.useState('');
@@ -89,51 +90,63 @@ export default function ApiManagerPage() {
         setUserOrganisation(event.target.value);
     };
 
+    const handleChangeProject = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setProject(event.target.value);
+    };
+
 
     const handleSaveApiKey = async () => {
-        // Basic validation
-        if (!apiKey || !organisation) {
+        if (!apiKey || !organisation || !project || !user || !userOrganisation) {
             useToastHook({
                 title: "Error",
-                description: "API Key and Service Provider cannot be empty.",
+                description: "Please fill in all the required fields.",
                 variant: "destructive",
             });
             return;
         }
 
-        // Create a new API key object
         const newApiKey = {
             id: String(Date.now()), // Generate a unique ID (not ideal, but works without a database)
-            provider: organisation, // Assuming provider is the same as organisation for simplicity
+            provider: organisation,
             model: llmModel,
             key: apiKey,
-            userId: user, // Replace with actual user ID
+            userId: user,
             isActive: true,
             organisation: organisation,
             description: description,
             apiKeyType: apiKeyType,
             accountType: accountType,
-            userOrganisation: userOrganisation
+            userOrganisation: userOrganisation,
+            project: project // Store the project
         };
 
-        // Update the state with the new API key
-        addApiKey(newApiKey);
+        try {
+            await addApiKey(newApiKey);
+            useToastHook({
+                title: "Success",
+                description: "API Key saved successfully.",
+            });
+        } catch (error: any) {
+            console.error("Error saving API key:", error);
+            useToastHook({
+                title: "Error",
+                description: `Failed to save API key: ${error.message}`,
+                variant: "destructive",
+            });
+            return;
+        }
 
-        // Clear the input fields
+        // Clear all input fields
         setApiKey('');
+        setShowApiKey(false);
         setOrganisation('');
-            setDescription('');
-            setLlmModel('');
-            setUser('');
-            setApiKeyType('');
-            setAccountType('');
-            setUserOrganisation('');
-
-        // Show a success message
-        useToastHook({
-            title: "Success",
-            description: "API Key saved."
-        });
+        setProject('');
+        setDescription('');
+        setLlmModel('');
+        setUser('');
+        setApiKeyType('');
+        setAccountType('');
+        setUserOrganisation('');
     };
 
     const handleDeleteApiKey = (id: string) => {
@@ -174,7 +187,7 @@ export default function ApiManagerPage() {
         useToastHook({
             title: "API Test",
             description: isActive.message,
-        });
+         });
     };
 
     const handleApiKeySelection = (apiKeyToSelect: string) => {
@@ -183,6 +196,7 @@ export default function ApiManagerPage() {
             setSelectedApiKey(selectedKey.key);
             setApiKey(selectedKey.key);
             setOrganisation(selectedKey.organisation);
+            setProject(selectedKey.project);
             setDescription(selectedKey.description);
             setLlmModel(selectedKey.model);
             setUser(selectedKey.userId);
@@ -215,6 +229,17 @@ export default function ApiManagerPage() {
                   </SelectContent>
               </Select>
           </div>
+
+            <div>
+                <Label htmlFor="project">Project</Label>
+                <Input
+                    type="text"
+                    id="project"
+                    placeholder="Enter name of project"
+                    value={project}
+                    onChange={handleChangeProject}
+                />
+            </div>
 
             {organisation !== '' && (
                 <div>
@@ -339,6 +364,7 @@ export default function ApiManagerPage() {
                                 <div key={key.id} className="border rounded-md p-4 flex items-center justify-between">
                                     <div>
                                         <p><strong>Service Provider:</strong> {key.organisation}</p>
+                                        <p><strong>Project:</strong> {key.project}</p>
                                         <p><strong>Type:</strong> {key.apiKeyType}</p>
                                         {key.apiKeyType === 'LLM-Model' && (
                                             <p><strong>LLM Model:</strong> {key.model}</p>
@@ -407,5 +433,3 @@ export default function ApiManagerPage() {
     </div>
   );
 }
-
-
