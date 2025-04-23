@@ -6,6 +6,8 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import React, {useState, useRef, useEffect} from "react";
 import {useToast} from "@/hooks/use-toast";
+import {Textarea} from "@/components/ui/textarea";
+import {Activity} from "lucide-react";
 
 const VoiceToTextBrainstorming = () => {
     const [altersgruppe, setAltersgruppe] = useState('');
@@ -104,17 +106,17 @@ const VoiceToTextBrainstorming = () => {
 
     return (
         <div>
-            <Label>Sprach-Eingabe</Label>
+            <Label className="text-xl font-semibold">Brainstorming - ElternHeld Voice Bot</Label>
             <div>
                 <Button variant="outline" onClick={toggleRecording}>
                     {recording ? 'Aufnahme stoppen' : 'Aufnahme starten'}
-                    {/*<Icons.microphone className="ml-2 h-4 w-4" />*/}
+                    <Activity className="ml-2 h-4 w-4" />
                 </Button>
             </div>
             {transcription && (
                 <div>
                     <Label>Transkription</Label>
-                    <Input type="text" value={transcription} readOnly/>
+                    <Textarea type="text" value={transcription} readOnly/>
                 </div>
             )}
             {audioBlob && (
