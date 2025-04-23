@@ -64,9 +64,15 @@ export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
     };
 
     const deleteApiKey = async (id: string) => {
-        await deleteApiKeyFromDb(id);
-        setApiKeys(prevKeys => prevKeys.filter(key => key.id !== id));
+        try {
+            await deleteApiKeyFromDb(id);
+            setApiKeys(prevKeys => prevKeys.filter(key => key.id !== id));
+        } catch (error) {
+            console.error("Error deleting API key:", error);
+            // Optionally handle the error, e.g., show a toast notification
+        }
     };
+
 
     return (
         <ApiKeyContext.Provider value={{ apiKeys, addApiKey, updateApiKey, deleteApiKey }}>
