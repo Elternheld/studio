@@ -19,12 +19,21 @@ const AVAILABLE_ORGANISATIONS = [
     "AssemblyAI",
 ]
 
+const LLM_MODELS = {
+    OpenAI: ["gpt-3.5-turbo", "gpt-4", "gpt-4o"],
+    Anthropic: ["claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"],
+    Google: ["gemini-1.5-pro-latest", "gemini-1.0-pro-latest", "gemini-2.0-flash"],
+    AssemblyAI: [], // AssemblyAI does not have LLM models
+};
+
+const API_KEY_TYPES = ["LLM-Model", "3rd Party Provider"]
+
 export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [organisation, setOrganisation] = React.useState('');
-    const [description, setDescription] = React.useState('');
-    const [project, setProject] = React.useState('');
+  const [description, setDescription] = React.useState('');
+    const [llmModel, setLlmModel] = React.useState('');
     const [user, setUser] = React.useState('');
   const { toast: useToastHook } = useToast()
     const { apiKeys, addApiKey, updateApiKey, deleteApiKey } = useApiKeyContext();
@@ -34,6 +43,8 @@ export default function ApiManagerPage() {
         time: null,
         active: null
     });
+
+    const [apiKeyType, setApiKeyType] = React.useState('');
 
 
   const toggleShowApiKey = () => {
@@ -46,14 +57,20 @@ export default function ApiManagerPage() {
 
     const handleChangeOrganisation = (value: string) => {
         setOrganisation(value);
+        setLlmModel(''); // Reset LLM model when organization changes
+    };
+
+    const handleChangeApiKeyType = (value: string) => {
+        setApiKeyType(value);
+        setLlmModel('');
     };
 
     const handleChangeDescription = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setDescription(event.target.value);
     };
 
-    const handleChangeProject = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setProject(event.target.value);
+    const handleChangeLlmModel = (value: string) => {
+        setLlmModel(value);
     };
 
     const handleChangeUser = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,12 +93,13 @@ export default function ApiManagerPage() {
         const newApiKey = {
             id: String(Date.now()), // Generate a unique ID (not ideal, but works without a database)
             provider: organisation, // Assuming provider is the same as organisation for simplicity
-            model: project, // You might want to add a model selection field
+            model: llmModel,
             key: apiKey,
             userId: user, // Replace with actual user ID
             isActive: true,
             organisation: organisation,
             description: description,
+            apiKeyType: apiKeyType,
         };
 
         // Update the state with the new API key
@@ -91,8 +109,9 @@ export default function ApiManagerPage() {
         setApiKey('');
         setOrganisation('');
             setDescription('');
-            setProject('');
+            setLlmModel('');
             setUser('');
+            setApiKeyType('');
 
         // Show a success message
         useToastHook({
@@ -149,8 +168,9 @@ export default function ApiManagerPage() {
             setApiKey(selectedKey.key);
             setOrganisation(selectedKey.organisation);
             setDescription(selectedKey.description);
-            setProject(selectedKey.model);
+            setLlmModel(selectedKey.model);
             setUser(selectedKey.userId);
+            setApiKeyType(selectedKey.apiKeyType);
         }
     };
 
@@ -177,16 +197,43 @@ export default function ApiManagerPage() {
                   </SelectContent>
               </Select>
           </div>
-            <div>
-                <Label htmlFor="project">Project</Label>
-                <Input
-                    type="text"
-                    id="project"
-                    placeholder="Enter name of project"
-                    value={project}
-                    onChange={handleChangeProject}
-                />
-            </div>
+
+            {organisation !== '' && (
+                <div>
+                    <Label htmlFor="apiKeyType">Type of API Key</Label>
+                    <Select onValueChange={handleChangeApiKeyType} value={apiKeyType}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select API Key Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {API_KEY_TYPES.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                    {type}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+
+            {apiKeyType === 'LLM-Model' && organisation !== '' && (
+                <div>
+                    <Label htmlFor="llmModel">LLM Model</Label>
+                    <Select onValueChange={handleChangeLlmModel} value={llmModel}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select an LLM Model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {LLM_MODELS[organisation as keyof typeof LLM_MODELS]?.map((model) => (
+                                <SelectItem key={model} value={model}>
+                                    {model}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+
             <div>
                 <Label htmlFor="user">User</Label>
                 <Input
@@ -246,7 +293,10 @@ export default function ApiManagerPage() {
                                 <div key={key.id} className="border rounded-md p-4 flex items-center justify-between">
                                     <div>
                                         <p><strong>Organisation:</strong> {key.organisation}</p>
-                                        <p><strong>Project:</strong> {key.model}</p>
+                                        <p><strong>Type:</strong> {key.apiKeyType}</p>
+                                        {key.apiKeyType === 'LLM-Model' && (
+                                            <p><strong>LLM Model:</strong> {key.model}</p>
+                                        )}
                                         <p><strong>User:</strong> {key.userId}</p>
                                         <p>
                                             <strong>API Key:</strong>
@@ -309,4 +359,3 @@ export default function ApiManagerPage() {
     </div>
   );
 }
-
