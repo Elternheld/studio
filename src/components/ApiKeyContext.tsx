@@ -42,12 +42,25 @@ export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
 
     useEffect(() => {
         const loadApiKeys = async () => {
-            const keys = await getApiKeys();
-            setApiKeys(keys);
+            // Try to load from localStorage first
+            const storedKeys = localStorage.getItem('apiKeys');
+            if (storedKeys) {
+                setApiKeys(JSON.parse(storedKeys));
+            } else {
+                // If not in localStorage, load from database
+                const keys = await getApiKeys();
+                setApiKeys(keys);
+                localStorage.setItem('apiKeys', JSON.stringify(keys)); // Store in localStorage
+            }
         };
 
         loadApiKeys();
     }, []);
+
+    useEffect(() => {
+        // Save API keys to localStorage whenever they change
+        localStorage.setItem('apiKeys', JSON.stringify(apiKeys));
+    }, [apiKeys]);
 
     const addApiKey = async (apiKey: ApiKey) => {
         await addApiKeyToDb(apiKey);
