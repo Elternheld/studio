@@ -4,7 +4,7 @@ import { generateActivityIdea } from "@/ai/flows/generate-activity-idea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Activity } from "lucide-react";
@@ -18,38 +18,24 @@ const VoiceToTextBrainstorming = () => {
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const { toast } = useToast();
     const { apiKeys } = useApiKeyContext();
-    const [assembly, setAssembly] = useState<any>(null);
+    const [geminiApiKey, setGeminiApiKey] = useState<string>('');
 
 
     useEffect(() => {
-        const loadAssemblyAI = async () => {
-            const assemblyApiKey = apiKeys.find(key => key.organisation === "AssemblyAI")?.key || "";
-            if (!assemblyApiKey) {
-                toast({
-                    title: "Error",
-                    description: "No AssemblyAI API key found. Please add in API Manager.",
-                    variant: "destructive",
-                });
-                return;
-            }
+        const loadGeminiApiKey = async () => {
+            const key = apiKeys.find(key => key.organisation === "Google")?.key || "";
+            setGeminiApiKey(key);
 
-            try {
-                const assemblyModule = await import('@assemblyai/node');
-                const assemblyClient = assemblyModule.default({
-                    apiKey: assemblyApiKey,
-                });
-                setAssembly(() => assemblyClient);
-            } catch (error) {
-                console.error("Error importing AssemblyAI:", error);
+            if (!key) {
                 toast({
                     title: "Error",
-                    description: `Error importing AssemblyAI: ${(error as Error).message}`,
+                    description: "No Google API key found. Please add in API Manager.",
                     variant: "destructive",
                 });
             }
         };
 
-        loadAssemblyAI();
+        loadGeminiApiKey();
     }, [apiKeys, toast]);
 
     useEffect(() => {
@@ -58,16 +44,15 @@ const VoiceToTextBrainstorming = () => {
         } else {
             stopRecording();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [recording]);
 
-    const startRecording = async () => {
+    const startRecording = useCallback(async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder.current = new MediaRecorder(stream);
             mediaRecorder.current.ondataavailable = handleDataAvailable;
             mediaRecorder.current.onstop = handleStop;
-            mediaRecorder.current.start();
+            audioRecorder.current.start();
             audioChunks.current = [];
             console.log('Recording started');
         } catch (err: any) {
@@ -78,58 +63,60 @@ const VoiceToTextBrainstorming = () => {
                 variant: "destructive",
             });
         }
-    };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    const stopRecording = () => {
+    const stopRecording = useCallback(() => {
         if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
             mediaRecorder.current.stop();
             console.log('Recording stopped');
         }
-    };
+    }, []);
 
     const handleDataAvailable = (event: BlobEvent) => {
         audioChunks.current.push(event.data);
     };
 
-    const handleStop = () => {
+    const handleStop = useCallback(() => {
         const audioBlobber = new Blob(audioChunks.current, { type: 'audio/wav' });
         setAudioBlob(audioBlobber);
         setTranscription('Transcribing...'); // Initial feedback
         transcribeAudio(audioBlobber);
-    };
+    }, []);
 
-
-    const transcribeAudio = async (blob: Blob) => {
-        if (!assembly) {
+    const transcribeAudio = useCallback(async (blob: Blob) => {
+        if (!geminiApiKey) {
             toast({
                 title: "Error",
-                description: "AssemblyAI not initialized. Please check your API key.",
+                description: "Gemini API key not found. Please check your API key.",
                 variant: "destructive",
             });
-            setTranscription('Transcription failed: AssemblyAI not initialized.');
+            setTranscription('Transcription failed: Gemini API key not initialized.');
             return;
         }
 
         const file = new File([blob], "recording.wav");
 
         try {
-            assembly.transcribe({
-                audio: file,
-            })
-                .then((transcript: { text: string; }) => {
-                    console.log("Transcript:", transcript);
-                    setTranscription(transcript.text || 'No transcription available.');
-                })
-                .catch((error: any) => {
-                    console.error("Error transcribing audio:", error);
-                    setTranscription('Transcription failed.');
-                    toast({
-                        title: "Error",
-                        description: `Transcription failed: ${error.message}`,
-                        variant: "destructive",
-                    });
-                });
+            // Here you would implement the logic to send the audio file
+            // to the Gemini API for transcription.
+            // This is a placeholder - replace with your actual Gemini API call.
+            const response = await fetch("/api/transcribe", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "audio/wav",
+                    "x-api-key": geminiApiKey,
+                },
+                body: file,
+            });
 
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Transcript:", data);
+            setTranscription(data.transcription || 'No transcription available.');
 
         } catch (error: any) {
             console.error('Transcription error:', error);
@@ -140,8 +127,7 @@ const VoiceToTextBrainstorming = () => {
                 variant: "destructive",
             });
         }
-    };
-
+    }, [geminiApiKey, toast]);
 
     const toggleRecording = () => {
         setRecording(!recording);
