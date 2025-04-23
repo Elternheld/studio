@@ -222,16 +222,6 @@ export default function ApiManagerPage() {
               </Select>
           </div>
 
--            <div>
--                <Label htmlFor="project">Project</Label>
--                <Input
--                    type="text"
--                    id="project"
--                    placeholder="Enter name of project"
--                    onChange={handleChangeProject}
--                />
--            </div>
-
             {organisation !== '' && (
                 <div>
                     <Label htmlFor="apiKeyType">Type of API Key</Label>
@@ -355,7 +345,6 @@ export default function ApiManagerPage() {
                                 <div key={key.id} className="border rounded-md p-4 flex items-center justify-between">
                                     <div>
                                         <p><strong>Service Provider:</strong> {key.organisation}</p>
--                                       <p><strong>Project:</strong> {key.project}</p>
                                         <p><strong>Type:</strong> {key.apiKeyType}</p>
                                         {key.apiKeyType === 'LLM-Model' && (
                                             <p><strong>LLM Model:</strong> {key.model}</p>
@@ -364,18 +353,62 @@ export default function ApiManagerPage() {
                                         <p><strong>User Organisation:</strong> {key.userOrganisation}</p>
                                         <p><strong>Account Type:</strong> {key.accountType}</p>
                                         <p>
-@@ -321,7 +310,6 @@
-                                 <SelectItem key={key.id} value={key.key}>
-                                     {key.organisation} - {key.model}
-                                 </SelectItem>
-+
-                             ))}
-                         </SelectContent>
-                     </Select>
-@@ -341,5 +329,4 @@
-             </CardContent>
-         </Card>
-     </div>
--  );
--}
-\ No newline at end of file
+                                            <strong>API Key:</strong>
+                                            {isVisible ? key.key : "*".repeat(10)}
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => toggleApiKeyVisibility(key.id)}
+                                            >
+                                                {isVisible ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                                            </Button>
+                                        </p>
+                                        <p><strong>Description:</strong> {key.description}</p>
+                                    </div>
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => handleDeleteApiKey(key.id)}
+                                    >
+                                        <Trash className="h-4 w-4"/>
+                                    </Button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </CardContent>
+            </Card>
+        )}
+
+        <Card className="w-[80%] mx-auto mt-8">
+            <CardHeader>
+                <CardTitle>API Test</CardTitle>
+                <CardDescription>Select an API key to test the connection.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Label htmlFor="selectApiKey">Select API Key</Label>
+                    <Select onValueChange={handleApiKeySelection}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select an API Key to test" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {apiKeys.map((key) => (
+                                <SelectItem key={key.id} value={key.key}>
+                                    {key.organisation} - {key.model}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Button onClick={handlePingApiKey}>Test API Key</Button>
+ 
+                 {pingResult.active !== null && (
+                     <div>
+                         <p>API Status: {pingResult.active ? "Active" : "Inactive"}</p>
+                         {pingResult.active && <p>Response Time: {pingResult.time?.toFixed(2)} ms</p>}
+                     </div>
+                 )}
+            </CardContent>
+        </Card>
+    </div>
+  );
+}
