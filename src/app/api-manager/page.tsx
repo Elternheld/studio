@@ -28,6 +28,8 @@ const LLM_MODELS = {
 
 const API_KEY_TYPES = ["LLM-Model", "3rd Party Provider"]
 
+const ACCOUNT_TYPES = ["Service Account", "Customer Account", "Admin Account"]
+
 export default function ApiManagerPage() {
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
@@ -45,6 +47,7 @@ export default function ApiManagerPage() {
     });
 
     const [apiKeyType, setApiKeyType] = React.useState('');
+    const [accountType, setAccountType] = React.useState('');
 
 
   const toggleShowApiKey = () => {
@@ -77,6 +80,10 @@ export default function ApiManagerPage() {
         setUser(event.target.value);
     };
 
+    const handleChangeAccountType = (value: string) => {
+        setAccountType(value);
+    };
+
 
     const handleSaveApiKey = async () => {
         // Basic validation
@@ -100,6 +107,7 @@ export default function ApiManagerPage() {
             organisation: organisation,
             description: description,
             apiKeyType: apiKeyType,
+            accountType: accountType,
         };
 
         // Update the state with the new API key
@@ -112,6 +120,7 @@ export default function ApiManagerPage() {
             setLlmModel('');
             setUser('');
             setApiKeyType('');
+            setAccountType('');
 
         // Show a success message
         useToastHook({
@@ -171,6 +180,7 @@ export default function ApiManagerPage() {
             setLlmModel(selectedKey.model);
             setUser(selectedKey.userId);
             setApiKeyType(selectedKey.apiKeyType);
+            setAccountType(selectedKey.accountType);
         }
     };
 
@@ -244,6 +254,23 @@ export default function ApiManagerPage() {
                     onChange={handleChangeUser}
                 />
             </div>
+
+            <div>
+                <Label htmlFor="accountType">Account Type</Label>
+                <Select onValueChange={handleChangeAccountType} value={accountType}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select Account Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {ACCOUNT_TYPES.map((type) => (
+                            <SelectItem key={type} value={type}>
+                                {type}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
             <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -298,6 +325,7 @@ export default function ApiManagerPage() {
                                             <p><strong>LLM Model:</strong> {key.model}</p>
                                         )}
                                         <p><strong>User:</strong> {key.userId}</p>
+                                        <p><strong>Account Type:</strong> {key.accountType}</p>
                                         <p>
                                             <strong>API Key:</strong>
                                             {isVisible ? key.key : '********************'}
@@ -359,4 +387,5 @@ export default function ApiManagerPage() {
     </div>
   );
 }
+
 
