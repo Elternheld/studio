@@ -184,6 +184,17 @@ export default function ActivityKonfigurator() {
                     </Form>
                 </CardContent>
             </Card>
+
+            <Card className="w-[80%] mx-auto mt-8">
+                <CardHeader>
+                    <CardTitle>ElternHeld Voice-Bot</CardTitle>
+                    <CardDescription>Brainstorme Ideen mit unserem KI-gestützten Sprachassistenten.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p>Dieser Bereich ist in Bearbeitung. Bleib dran für aufregende neue Funktionen!</p>
+                </CardContent>
+            </Card>
+
             {activity && (
                 <ActivitySuggestions suggestions={[activity]} />
             )}
