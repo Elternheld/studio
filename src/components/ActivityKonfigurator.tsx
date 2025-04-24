@@ -49,10 +49,14 @@ export default function ActivityKonfigurator() {
         try {
             const result = await generateActivityIdea(values);
             setActivity(result);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to generate activity:", error);
+            alert("Failed to generate activity: " + error.message);
             // Handle error appropriately (e.g., display an error message)
-        }
+        } finally {
+            console.log('Finally block executed, whether the promise was resolved or rejected')
+            
+          }
     }
 
     return (
